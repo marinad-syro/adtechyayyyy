@@ -1,5 +1,0 @@
-fastapi>=0.100
-python-multipart
-python-dotenv
-httpx>=0.27
-openai>=1.0

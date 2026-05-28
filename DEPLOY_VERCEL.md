@@ -8,10 +8,10 @@ This branch drops **TribeV2** and uses **keyword matching on Vercel** (no PyTorc
 |---------|--------|
 | **Root Directory** | *(leave empty — repo root; must contain `vercel.json`)* |
 | **Framework Preset** | **Services** |
-| **Build Command** | *(empty — Vercel installs from `requirements.txt` at repo root)* |
+| **Build Command** | *(from `vercel.json`: copies `frontend/` → `backend/_frontend/`)* |
 | **Output Directory** | *(empty)* |
 
-All traffic is rewritten to `api/index.py`, which runs the FastAPI app and serves the frontend from `frontend/`.
+The FastAPI entrypoint is `backend/app.py` (Services). At deploy time Vercel compiles it to `/var/task/index.py` and bundles `backend/**` including the copied `_frontend/` static files.
 
 ## Environment variables
 

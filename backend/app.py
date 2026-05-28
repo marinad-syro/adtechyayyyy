@@ -17,13 +17,20 @@ from pydantic import BaseModel, Field
 
 DEMO_MODE = os.environ.get("DEMO_MODE", "embedding")
 
+_ROOT = Path(__file__).resolve().parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
 
 def _resolve_frontend_dir() -> Path | None:
+    """Vercel compiles backend/app.py → /var/task/index.py; frontend must sit alongside it."""
     here = Path(__file__).resolve().parent
     for candidate in (
-        here.parent / "frontend",
-        Path.cwd() / "frontend",
+        here / "_frontend",  # buildCommand: cp -r frontend backend/_frontend
         here / "frontend",
+        Path.cwd() / "_frontend",
+        Path.cwd() / "frontend",
+        here.parent / "frontend",
     ):
         if candidate.is_dir():
             return candidate

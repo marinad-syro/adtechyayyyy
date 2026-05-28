@@ -17,6 +17,7 @@ env/
 
 # Model/data cache
 backend/model_cache/
+backend/_frontend/
 
 # macOS
 .DS_Store
