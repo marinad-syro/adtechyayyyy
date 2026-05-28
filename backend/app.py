@@ -7,7 +7,9 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).parent / ".env")
+_env_dir = Path(__file__).parent
+load_dotenv(_env_dir / ".env")
+load_dotenv(_env_dir.parent / ".env", override=False)
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware

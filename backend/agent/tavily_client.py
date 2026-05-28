@@ -26,9 +26,73 @@ CATEGORY_FALLBACKS = {
     },
 }
 
+BRAND_QUERY = (
+    "brand mission products services value proposition target audience "
+    "pricing tone of voice about the company sustainability"
+)
+
+ABOUT_PATHS = (
+    "",
+    "/about",
+    "/about-us",
+    "/about_us",
+    "/company",
+    "/our-story",
+    "/pages/about-us",
+)
+
+_NOISE_LINE = re.compile(
+    r"^(Image \d+:|Shop (Men|Women)|Previous|Next|Opens in|^\d+\s*$|"
+    r"^(Home|Menu|Search|Cart|Sign in|Cookie))",
+    re.I,
+)
+
 
 def _api_key() -> str | None:
     return os.environ.get("TAVILY_API_KEY")
+
+
+def normalize_brand_url(website_url: str) -> str:
+    """Strip tracking params and return site root for brand-focused scraping."""
+    if not website_url.startswith(("http://", "https://")):
+        website_url = "https://" + website_url
+    parsed = urlparse(website_url)
+    if not parsed.netloc:
+        return website_url
+    return f"{parsed.scheme}://{parsed.netloc}/"
+
+
+def brand_extract_urls(website_url: str, max_urls: int = 5) -> list[str]:
+    """Homepage plus common about paths (deduped)."""
+    root = normalize_brand_url(website_url).rstrip("/")
+    seen: set[str] = set()
+    urls: list[str] = []
+    for path in ABOUT_PATHS:
+        url = root + path if path else root + "/"
+        if url not in seen:
+            seen.add(url)
+            urls.append(url)
+        if len(urls) >= max_urls:
+            break
+    return urls
+
+
+def _content_quality(text: str) -> float:
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    if not lines:
+        return 0.0
+    noise = sum(1 for ln in lines if _NOISE_LINE.search(ln) or _is_duplicate_nav(ln))
+    return max(0.0, 1.0 - noise / len(lines))
+
+
+def _is_duplicate_nav(line: str) -> bool:
+    """Detect headings like 'Shop and Learn Shop and Learn'."""
+    text = re.sub(r"^#+\s*", "", line).strip()
+    words = text.split()
+    if len(words) >= 4 and len(words) % 2 == 0:
+        half = len(words) // 2
+        return words[:half] == words[half:]
+    return False
 
 
 def extract_urls(
@@ -58,7 +122,7 @@ def extract_urls(
         payload["chunks_per_source"] = 5
 
     try:
-        resp = httpx.post("https://api.tavily.com/extract", json=payload, timeout=30.0)
+        resp = httpx.post("https://api.tavily.com/extract", json=payload, timeout=45.0)
         resp.raise_for_status()
         data = resp.json()
         data["source"] = "tavily_extract"
@@ -71,34 +135,55 @@ def extract_urls(
         }
 
 
+def _search_brand_context(domain: str, brand_hint: str = "") -> str:
+    """Site-scoped search for mission/products when extract is thin or noisy."""
+    hint = brand_hint or domain.replace("www.", "").split(".")[0]
+    queries = [
+        f"site:{domain} about mission what does {hint} sell products",
+        f"{hint} brand story value proposition products",
+    ]
+    parts: list[str] = []
+    for q in queries:
+        snippet, _ = _tavily_search_cached(q)
+        if snippet and snippet not in parts:
+            parts.append(snippet)
+        if sum(len(p) for p in parts) > 600:
+            break
+    return "\n".join(parts)
+
+
 def extract_brand_website(website_url: str) -> dict:
-    """Scrape advertiser site for brand onboarding (homepage + about query)."""
-    domain = urlparse(website_url).netloc or website_url
-    query = (
-        "brand mission products services value proposition target audience "
-        "pricing tone of voice about the company"
-    )
+    """Scrape advertiser site: normalized root + about pages + search enrichment."""
+    root = normalize_brand_url(website_url)
+    domain = urlparse(root).netloc or website_url
+    urls = brand_extract_urls(website_url)
 
-    extract = extract_urls(website_url, query=query, extract_depth="advanced")
+    extract = extract_urls(urls, query=BRAND_QUERY, extract_depth="advanced")
 
-    content = ""
+    sections: list[str] = []
     for row in extract.get("results", []):
-        content += (row.get("raw_content") or "") + "\n"
+        raw = (row.get("raw_content") or "").strip()
+        if raw:
+            sections.append(raw)
 
-    if len(content) < 200:
-        search_snippet, _ = _tavily_search_cached(
-            f"site:{domain} about products brand what they sell"
-        )
-        content = (content + "\n" + search_snippet).strip()
+    content = "\n\n---\n\n".join(sections)
+    quality = _content_quality(content)
+
+    if len(content) < 400 or quality < 0.45:
+        search_blob = _search_brand_context(domain)
+        if search_blob:
+            content = f"## Market / brand search context\n{search_blob}\n\n{content}".strip()
 
     return {
-        "url": website_url,
+        "url": root,
         "domain": domain,
-        "content": content[:12000],
+        "content": content[:14000],
         "extract_meta": {
             "source": extract.get("source"),
             "failed": extract.get("failed_results", []),
             "chars": len(content),
+            "urls_scraped": urls,
+            "content_quality": round(quality, 3),
         },
     }
 
@@ -118,7 +203,7 @@ def _tavily_search_cached(query: str) -> tuple[str, float]:
                 "search_depth": "basic",
                 "max_results": 3,
             },
-            timeout=8.0,
+            timeout=12.0,
         )
         resp.raise_for_status()
         data = resp.json()
@@ -126,7 +211,7 @@ def _tavily_search_cached(query: str) -> tuple[str, float]:
         if not results:
             return "", 0.0
 
-        snippets = [r.get("content", "")[:200] for r in results[:2]]
+        snippets = [r.get("content", "")[:350] for r in results[:3]]
         combined = " ".join(snippets)
         urgency = 0.5
         lower = combined.lower()
@@ -136,7 +221,7 @@ def _tavily_search_cached(query: str) -> tuple[str, float]:
             urgency += 0.10
         if any(w in lower for w in ["cheaper", "competitor", "alternative"]):
             urgency -= 0.10
-        return combined[:300], max(0.0, min(1.0, urgency))
+        return combined[:800], max(0.0, min(1.0, urgency))
     except Exception:
         return "", 0.0
 
