@@ -1,7 +1,6 @@
 import { initDashboardPanels, refreshDashboard } from './dashboard-panels.js';
 import { initConsumerChat } from './consumer-chat.js';
 import { initAgentDrawer } from './agent-drawer.js';
-import { getHealth } from './api.js';
 
 function initTabs() {
   document.querySelectorAll('.tab').forEach(tab => {
@@ -15,52 +14,41 @@ function initTabs() {
   });
 }
 
-async function checkHealth() {
-  try {
-    const h = await getHealth();
-    const status = document.getElementById('tribeStatus');
-    if (!status) return;
-    const mode = h.mode === 'embedding' ? 'Emotional fit' : 'Tribe';
-    if (h.ready) status.textContent = `${mode}: ready`;
-    else if (h.loading) {
-      status.textContent = `${mode}: loading…`;
-      setTimeout(checkHealth, 4000);
-    } else status.textContent = `${mode}: offline`;
+const RIGHT_PANEL_KEY = 'contextbid-right-panel-open';
 
-    const emb = h.embeddings;
-    const embEl = document.getElementById('embedStatus');
-    if (embEl && emb) {
-      const label = emb.mode === 'keyword' ? 'Keywords' : 'Embeddings';
-      embEl.textContent = emb.ready
-        ? `${label}: ready`
-        : emb.loading
-          ? `${label}: loading…`
-          : `${label}: keyword fallback`;
+function initRightPanel() {
+  const panel = document.getElementById('rightPanel');
+  const grid = document.getElementById('mainGrid');
+  const toggle = document.getElementById('rightPanelToggle');
+  if (!panel || !grid || !toggle) return;
+
+  const setOpen = (open) => {
+    panel.classList.toggle('collapsed', !open);
+    grid.classList.toggle('right-collapsed', !open);
+    toggle.classList.toggle('is-collapsed', !open);
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.title = open ? 'Hide decision panel' : 'Show decision panel';
+    const icon = toggle.querySelector('.toggle-icon');
+    if (icon) icon.textContent = open ? '›' : '‹';
+    try {
+      localStorage.setItem(RIGHT_PANEL_KEY, String(open));
+    } catch {
+      /* ignore */
     }
-  } catch {
-    setTimeout(checkHealth, 5000);
-  }
+  };
+
+  const stored = localStorage.getItem(RIGHT_PANEL_KEY);
+  setOpen(stored !== 'false');
+
+  toggle.addEventListener('click', () => setOpen(panel.classList.contains('collapsed')));
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   initTabs();
+  initRightPanel();
   initDashboardPanels();
   initConsumerChat();
   initAgentDrawer();
-  checkHealth();
 
-  document.getElementById('refreshBtn')?.addEventListener('click', refreshDashboard);
-
-  document.getElementById('tourBtn')?.addEventListener('click', () => {
-    alert(
-      '60-second demo:\n\n' +
-      '1. Onboard a brand (left) or use default catalog\n' +
-      '2. Type a user prompt in the center chat (e.g. back pain after desk work)\n' +
-      '3. Check Conversion tab — p(CVR), EV, serve/no_bid\n' +
-      '4. Auction tab — semantic bid mechanics\n' +
-      '5. Brain tab — Tribe emotional fit\n' +
-      '6. Simulate conversion → watch CVR update\n' +
-      '7. Run 50-session simulation to prove lift'
-    );
-  });
+  document.getElementById('refreshBtn')?.addEventListener('click', () => refreshDashboard({ resetStats: true }));
 });

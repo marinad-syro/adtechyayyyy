@@ -14,6 +14,8 @@ async function request(path, options = {}) {
 
 export const getHealth = () => request('/api/health');
 export const getDashboard = () => request('/api/dashboard');
+export const resetDashboard = () =>
+  request('/api/dashboard/reset', { method: 'POST' });
 export const getCatalog = () => request('/api/catalog');
 export const getPolicies = () => request('/api/policies');
 export const getBrands = () => request('/api/brand');

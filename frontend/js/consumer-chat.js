@@ -1,6 +1,5 @@
-import { placementPreview, recordOutcome, scoreFit } from './api.js';
+import { placementPreview, recordOutcome } from './api.js';
 import { renderAuction } from './auction-panel.js';
-import { renderBrainPanel, showBrainLoading } from './brain-panel.js';
 import { refreshDashboard, setLastPreview, showToast, getAppState } from './dashboard-panels.js';
 
 let conversationHistory = [];
@@ -15,10 +14,6 @@ export function initConsumerChat() {
       sendConsumerMessage();
     }
   });
-
-  document.getElementById('outcomeClick')?.addEventListener('click', () => logOutcome('click'));
-  document.getElementById('outcomeConvert')?.addEventListener('click', () => logOutcome('conversion'));
-  document.getElementById('outcomeNoClick')?.addEventListener('click', () => logOutcome('no_click'));
 }
 
 function appendMessage(role, text) {
@@ -30,16 +25,43 @@ function appendMessage(role, text) {
   c.scrollTop = c.scrollHeight;
 }
 
-function appendInlineAd(winner, source = 'decision') {
+async function appendInlineAd(winner, source = 'decision') {
   const c = document.getElementById('consumerMessages');
   const div = document.createElement('div');
   div.className = 'inline-ad';
   const name = winner.product_name || winner.advertiser_name || 'Sponsored';
   const copy = winner.copy || winner.ad_copy || '';
-  div.innerHTML = `
-    <div class="inline-ad-label">Sponsored · ${name} · ${source === 'decision' ? 'conversion-optimized' : 'auction'}</div>
-    <div class="inline-ad-copy">${copy}</div>
-    <div class="inline-ad-cta">Learn more →</div>`;
+
+  const label = document.createElement('div');
+  label.className = 'inline-ad-label';
+  label.textContent = `Sponsored · ${name} · ${source === 'decision' ? 'conversion-optimized' : 'auction'}`;
+
+  const copyEl = document.createElement('div');
+  copyEl.className = 'inline-ad-copy';
+  copyEl.textContent = copy;
+
+  const cta = document.createElement('button');
+  cta.type = 'button';
+  cta.className = 'inline-ad-cta';
+  cta.textContent = 'Learn more →';
+
+  if (currentPlacementId) {
+    cta.addEventListener('click', async () => {
+      if (cta.disabled) return;
+      const ok = await logOutcome('click', { silent: false, successLabel: 'Click recorded' });
+      if (ok) {
+        cta.disabled = true;
+        cta.textContent = 'Clicked ✓';
+        div.classList.add('inline-ad-clicked');
+      }
+    });
+    await logOutcome('impression', { silent: true });
+  } else {
+    cta.disabled = true;
+    cta.title = 'No tracked placement for this ad';
+  }
+
+  div.append(label, copyEl, cta);
   c.appendChild(div);
   c.scrollTop = c.scrollHeight;
 }
@@ -101,6 +123,11 @@ async function sendConsumerMessage() {
   const msg = input.value.trim();
   if (!msg) return;
 
+  if (!getAppState().activeBrandId) {
+    showToast('Load a website URL in the dashboard first', true);
+    return;
+  }
+
   input.value = '';
   lastUserText = msg;
   appendMessage('user', msg);
@@ -109,7 +136,6 @@ async function sendConsumerMessage() {
   const sendBtn = document.getElementById('consumerSend');
   sendBtn.disabled = true;
 
-  showBrainLoading(document.getElementById('brainPanel'), 'Scoring emotional fit…');
   document.getElementById('decidePanel').innerHTML =
     '<div class="loading-block"><span class="spinner"></span>Running conversion model…</div>';
 
@@ -136,7 +162,7 @@ async function sendConsumerMessage() {
     currentPlacementId = decision?.placement_id || null;
 
     document.getElementById('placementMeta').textContent = currentPlacementId
-      ? `Placement ${currentPlacementId} · action: ${decision?.action || '—'}`
+      ? `Placement ${currentPlacementId.slice(0, 8)}… · Click “Learn more” on the ad to count a click`
       : decision?.action === 'no_bid'
         ? 'No bid — below CVR floor or safety gate'
         : decision?.action === 'escalate'
@@ -144,42 +170,14 @@ async function sendConsumerMessage() {
           : '';
 
     if (decision?.action === 'serve' && decision.winner) {
-      appendInlineAd(decision.winner, 'decision');
+      await appendInlineAd(decision.winner, 'decision');
     } else if (data.auction?.winner?.relevance_score > 0.18) {
-      appendInlineAd(data.auction.winner, 'auction');
+      await appendInlineAd(data.auction.winner, 'auction');
     }
 
     renderDecidePanel(decision);
     renderAuction(document.getElementById('auctionPanel'), data.auction);
-
-    if (decision?.winner?.user_activations) {
-      renderBrainPanel(document.getElementById('brainPanel'), { winner: decision.winner, userText: msg });
-    } else if (decision?.winner?.copy && msg.length >= 10) {
-      try {
-        const fit = await scoreFit(msg, decision.winner.copy);
-        renderBrainPanel(document.getElementById('brainPanel'), {
-          winner: {
-            ...decision.winner,
-            user_activations: fit.activations?.user,
-            ad_activations: fit.activations?.ad,
-            tribe_detail: { conversion_fit: fit.conversion_fit },
-          },
-          userText: msg,
-          scoreFitResult: fit,
-        });
-      } catch {
-        renderBrainPanel(document.getElementById('brainPanel'), { winner: decision.winner, userText: msg });
-      }
-    } else {
-      document.getElementById('brainPanel').innerHTML =
-        '<div class="empty-state">Emotional fit unavailable or text too short</div>';
-    }
-
-    if (data.dashboard_snapshot) {
-      const d = data.dashboard_snapshot;
-      document.getElementById('headerCvr').innerHTML =
-        `CVR <strong>${(d.cvr * 100).toFixed(2)}%</strong>`;
-    }
+    refreshDashboard();
   } catch (e) {
     setTyping(false);
     appendMessage('system', 'Error: ' + e.message);
@@ -189,17 +187,21 @@ async function sendConsumerMessage() {
   }
 }
 
-async function logOutcome(event) {
+async function logOutcome(event, { silent = false, successLabel = null } = {}) {
   if (!currentPlacementId) {
-    showToast('No active placement — send a message first', true);
-    return;
+    if (!silent) showToast('No active placement — send a message first', true);
+    return false;
   }
   try {
     await recordOutcome(currentPlacementId, event);
-    showToast(`Recorded: ${event}`);
-    refreshDashboard();
+    if (!silent) {
+      showToast(successLabel || `Recorded: ${event}`);
+    }
+    await refreshDashboard();
+    return true;
   } catch (e) {
-    showToast(e.message, true);
+    if (!silent) showToast(e.message, true);
+    return false;
   }
 }
 

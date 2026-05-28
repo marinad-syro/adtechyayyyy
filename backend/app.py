@@ -434,6 +434,15 @@ def api_dashboard():
     return get_dashboard_stats()
 
 
+@app.post("/api/dashboard/reset")
+def api_dashboard_reset():
+    """Clear impression/click/conversion counters for a fresh demo."""
+    from agent.outcomes import reset_db
+
+    reset_db()
+    return {"ok": True}
+
+
 @app.get("/api/escalations")
 def api_escalations():
     from agent.outcomes import get_escalation_queue
