@@ -1,0 +1,209 @@
+{
+  "products": [
+    {
+      "id": "lumbar-support-cushion",
+      "name": "ErgoRest Lumbar Support Cushion",
+      "category": "pain_relief",
+      "keywords": ["back pain", "lower back", "lumbar", "posture", "office chair", "ache", "hurt"],
+      "conversion_value": 45.0,
+      "base_bid": 1.20,
+      "creatives": [
+        {
+          "id": "lumbar-empathy",
+          "tone": "empathy",
+          "copy": "Chronic lower back pain shouldn't run your day. ErgoRest's lumbar cushion is designed to support your spine during long sits — many users feel relief within the first week."
+        },
+        {
+          "id": "lumbar-urgency",
+          "tone": "urgency",
+          "copy": "Limited stock: ErgoRest Lumbar Cushion — 40% off this week. Don't wait until the pain gets worse."
+        },
+        {
+          "id": "lumbar-feature",
+          "tone": "feature",
+          "copy": "ErgoRest uses dual-density memory foam with a breathable mesh cover. Clinically inspired contour for L4-L5 support."
+        }
+      ]
+    },
+    {
+      "id": "sleep-mask-pro",
+      "name": "DreamWeave Sleep Mask Pro",
+      "category": "sleep",
+      "keywords": ["sleep", "insomnia", "can't sleep", "tired", "rest", "night", "wake up"],
+      "conversion_value": 32.0,
+      "base_bid": 0.95,
+      "creatives": [
+        {
+          "id": "sleep-empathy",
+          "tone": "empathy",
+          "copy": "When you can't shut off at night, every hour matters. DreamWeave blocks light completely so your brain can finally settle."
+        },
+        {
+          "id": "sleep-urgency",
+          "tone": "urgency",
+          "copy": "Tonight could be different — DreamWeave Pro is 30% off for 48 hours only."
+        }
+      ]
+    },
+    {
+      "id": "standing-desk",
+      "name": "FlexStand Electric Desk",
+      "category": "research",
+      "keywords": ["standing desk", "desk", "wfh", "home office", "ergonomic", "compare", "best desk"],
+      "conversion_value": 280.0,
+      "base_bid": 3.50,
+      "creatives": [
+        {
+          "id": "desk-feature",
+          "tone": "feature",
+          "copy": "FlexStand: dual-motor lift, 48\" surface, memory presets. Rated #2 in Wirecutter-style comparisons for under $500."
+        },
+        {
+          "id": "desk-empathy",
+          "tone": "empathy",
+          "copy": "Your back wasn't built for 8 hours of sitting. FlexStand lets you switch posture without disrupting your flow."
+        }
+      ]
+    },
+    {
+      "id": "mattress-topper",
+      "name": "CloudNest Mattress Topper",
+      "category": "research",
+      "keywords": ["mattress", "bed", "sleep quality", "compare mattresses", "firm", "soft", "side sleeper"],
+      "conversion_value": 120.0,
+      "base_bid": 2.10,
+      "creatives": [
+        {
+          "id": "mattress-feature",
+          "tone": "feature",
+          "copy": "CloudNest: 3\" gel-infused memory foam, cooling cover, 100-night trial. Upgrade your bed without buying a new mattress."
+        },
+        {
+          "id": "mattress-empathy",
+          "tone": "empathy",
+          "copy": "Waking up sore isn't normal. CloudNest adds pressure relief so you wake up actually rested."
+        }
+      ]
+    },
+    {
+      "id": "running-shoes",
+      "name": "StrideFlow Running Shoes",
+      "category": "transactional",
+      "keywords": ["running shoes", "buy shoes", "marathon", "jogging", "under $100", "sneakers"],
+      "conversion_value": 95.0,
+      "base_bid": 1.80,
+      "creatives": [
+        {
+          "id": "shoes-urgency",
+          "tone": "urgency",
+          "copy": "StrideFlow V3 — $89 this week (reg $129). Free returns if they don't feel right on your first run."
+        },
+        {
+          "id": "shoes-feature",
+          "tone": "feature",
+          "copy": "Lightweight mesh upper, responsive foam midsole, 8mm drop. Built for daily training miles."
+        }
+      ]
+    },
+    {
+      "id": "protein-powder",
+      "name": "PureGain Plant Protein",
+      "category": "transactional",
+      "keywords": ["protein powder", "buy protein", "gym", "muscle", "vegan protein", "workout"],
+      "conversion_value": 38.0,
+      "base_bid": 1.05,
+      "creatives": [
+        {
+          "id": "protein-feature",
+          "tone": "feature",
+          "copy": "PureGain: 24g plant protein, no artificial sweeteners, third-party tested. Mixes clean in water or oat milk."
+        },
+        {
+          "id": "protein-urgency",
+          "tone": "urgency",
+          "copy": "Subscribe & save 25% on PureGain — cancel anytime. Ships free today."
+        }
+      ]
+    },
+    {
+      "id": "meditation-app",
+      "name": "CalmPath Premium",
+      "category": "pain_relief",
+      "keywords": ["stress", "anxiety", "overwhelmed", "meditation", "mindfulness", "burnout"],
+      "conversion_value": 60.0,
+      "base_bid": 1.40,
+      "creatives": [
+        {
+          "id": "calm-empathy",
+          "tone": "empathy",
+          "copy": "When everything feels like too much, a 10-minute guided session can reset your nervous system. CalmPath was built for busy brains."
+        },
+        {
+          "id": "calm-feature",
+          "tone": "feature",
+          "copy": "CalmPath Premium: 500+ sessions, sleep stories, breathwork tracks. 7-day free trial, no credit card."
+        }
+      ]
+    },
+    {
+      "id": "blue-light-glasses",
+      "name": "ScreenEase Blue Light Glasses",
+      "category": "research",
+      "keywords": ["eye strain", "screen", "computer", "headache", "blue light", "glasses"],
+      "conversion_value": 55.0,
+      "base_bid": 1.15,
+      "creatives": [
+        {
+          "id": "glasses-empathy",
+          "tone": "empathy",
+          "copy": "That 3pm headache after back-to-back Zooms? ScreenEase filters harsh blue light without the orange tint."
+        },
+        {
+          "id": "glasses-feature",
+          "tone": "feature",
+          "copy": "ScreenEase: lightweight acetate frames, anti-glare coating, prescription-ready. Try at home for 30 days."
+        }
+      ]
+    },
+    {
+      "id": "meal-kit",
+      "name": "FreshPlate Meal Kit",
+      "category": "transactional",
+      "keywords": ["meal kit", "dinner", "cooking", "healthy meals", "no time to cook", "delivery"],
+      "conversion_value": 72.0,
+      "base_bid": 1.60,
+      "creatives": [
+        {
+          "id": "meal-empathy",
+          "tone": "empathy",
+          "copy": "Too tired to plan dinner again? FreshPlate sends pre-portioned ingredients — 20-minute meals, zero food waste guilt."
+        },
+        {
+          "id": "meal-urgency",
+          "tone": "urgency",
+          "copy": "First box 50% off + free delivery. FreshPlate — eat well without the mental load."
+        }
+      ]
+    },
+    {
+      "id": "noise-cancel-headphones",
+      "name": "QuietZone ANC Headphones",
+      "category": "research",
+      "keywords": ["headphones", "noise cancelling", "focus", "open office", "concentration", "music"],
+      "conversion_value": 180.0,
+      "base_bid": 2.80,
+      "creatives": [
+        {
+          "id": "headphones-feature",
+          "tone": "feature",
+          "copy": "QuietZone: adaptive ANC, 40hr battery, multipoint Bluetooth. Top pick for open-office focus."
+        },
+        {
+          "id": "headphones-empathy",
+          "tone": "empathy",
+          "copy": "You shouldn't have to hear every conversation in the room. QuietZone creates a bubble so you can actually think."
+        }
+      ]
+    }
+  ]
+}

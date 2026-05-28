@@ -1,0 +1,80 @@
+{
+  "brands": {
+    "e213c3da-23eb-4911-854b-f9ca93b85c21": {
+      "id": "e213c3da-23eb-4911-854b-f9ca93b85c21",
+      "website_url": "https://example.com",
+      "ad_plan": {
+        "brand_profile": {
+          "name": "Example",
+          "website": "https://example.com",
+          "domain": "example.com",
+          "voice": "professional",
+          "value_props": [],
+          "keywords": [
+            "advertiser",
+            "notes",
+            "sell",
+            "ergonomic",
+            "chairs",
+            "back",
+            "pain"
+          ],
+          "summary": "  Advertiser notes: We sell ergonomic chairs for back pain."
+        },
+        "creative_guidelines": {
+          "preferred_tones": [
+            "empathy",
+            "feature"
+          ],
+          "avoid_tones": [],
+          "notes": "We sell ergonomic chairs for back pain."
+        },
+        "guardrails": {
+          "blocked_terms": [],
+          "blocked_topics": []
+        },
+        "suggested_catalog": {
+          "products": [
+            {
+              "id": "example- flagship",
+              "name": "Example Flagship",
+              "category": "research",
+              "keywords": [
+                "advertiser",
+                "notes",
+                "sell",
+                "ergonomic",
+                "chairs",
+                "back",
+                "pain"
+              ],
+              "conversion_value": 75.0,
+              "base_bid": 1.5,
+              "creatives": [
+                {
+                  "id": "flagship-empathy",
+                  "tone": "empathy",
+                  "copy": "See why customers choose Example."
+                }
+              ]
+            }
+          ]
+        },
+        "campaign_defaults": {
+          "daily_budget": 500.0,
+          "cvr_floor": 0.02,
+          "bid_strategy": "conversion_optimized"
+        },
+        "source": {
+          "tavily_extract": {
+            "source": "no_api_key",
+            "failed": [],
+            "chars": 0
+          },
+          "content_preview": "\n\nAdvertiser notes:\nWe sell ergonomic chairs for back pain."
+        }
+      },
+      "updated_at": "2026-05-28T18:20:28.755633+00:00"
+    }
+  }
+}

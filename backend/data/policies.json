@@ -1,0 +1,13 @@
+{
+  "daily_budget": 500.0,
+  "bid_cap_multiplier": 2.5,
+  "cvr_floor": 0.02,
+  "spend_spike_threshold": 0.20,
+  "brand_safety_threshold": 0.35,
+  "blocked_terms": ["miracle cure", "guaranteed results", "lose weight fast", "get rich", "crypto"],
+  "blocked_topics": ["politics", "gambling", "adult"],
+  "require_creative_approval": true,
+  "top_k_products": 5,
+  "top_k_finalists": 3,
+  "pause_after_impressions_no_click": 3
+}
