@@ -9,5 +9,7 @@
   "require_creative_approval": true,
   "top_k_products": 5,
   "top_k_finalists": 3,
+  "intent_score_floor": 0.18,
+  "relevance_score_floor": 0.18,
   "pause_after_impressions_no_click": 3
 }

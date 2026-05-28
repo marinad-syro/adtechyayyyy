@@ -143,6 +143,873 @@
         }
       },
       "updated_at": "2026-05-28T18:38:00.744583+00:00"
+    },
+    "8c37769a-ca43-47ce-9dc1-d95f9fa2bc97": {
+      "id": "8c37769a-ca43-47ce-9dc1-d95f9fa2bc97",
+      "website_url": "https://www.apple.com/",
+      "ad_plan": {
+        "brand_profile": {
+          "name": "Apple",
+          "website": "https://www.apple.com/",
+          "domain": "www.apple.com",
+          "voice": "professional",
+          "value_props": [
+            "Advanced AI performance and game-changing capabilities",
+            "Supercharged by M4",
+            "Mac and iPad for any college major",
+            "Special new Apple Card and AirPods Pro 3 offer"
+          ],
+          "keywords": [
+            "iPhone 17 Pro",
+            "iPhone 17",
+            "iPad Pro",
+            "iPad Air",
+            "Mac",
+            "Apple Watch",
+            "AirPods",
+            "Apple Vision Pro",
+            "Apple Card",
+            "WWDC",
+            "Apple Intelligence",
+            "iOS"
+          ],
+          "summary": "Apple offers consumer electronics and services including iPhone, iPad, Mac, and Apple Card. WWDC 26 is scheduled online June 8-12, with promotions for college students and special Apple Card offers."
+        },
+        "creative_guidelines": {
+          "preferred_tones": [
+            "urgency",
+            "empathy"
+          ],
+          "avoid_tones": [
+            "urgency"
+          ],
+          "notes": null
+        },
+        "guardrails": {
+          "blocked_terms": [],
+          "blocked_topics": []
+        },
+        "suggested_catalog": {
+          "products": [
+            {
+              "id": "iphone-17-pro-2ef3d2",
+              "name": "iPhone 17 Pro",
+              "category": "research",
+              "keywords": [
+                "iPhone 17 Pro",
+                "iPhone 17",
+                "iPad Pro",
+                "iPad Air",
+                "Mac",
+                "Apple Watch",
+                "AirPods",
+                "Apple Vision Pro"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "iphone-17-pro-empathy",
+                  "tone": "empathy",
+                  "copy": "iPhone 17 Pro \u2014 discover how Apple can help."
+                },
+                {
+                  "id": "iphone-17-pro-feature",
+                  "tone": "feature",
+                  "copy": "Apple: iPhone 17 Pro"
+                }
+              ]
+            },
+            {
+              "id": "iphone-17-f1973a",
+              "name": "iPhone 17",
+              "category": "research",
+              "keywords": [
+                "iPhone 17 Pro",
+                "iPhone 17",
+                "iPad Pro",
+                "iPad Air",
+                "Mac",
+                "Apple Watch",
+                "AirPods",
+                "Apple Vision Pro"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "iphone-17-empathy",
+                  "tone": "empathy",
+                  "copy": "iPhone 17 \u2014 discover how Apple can help."
+                },
+                {
+                  "id": "iphone-17-feature",
+                  "tone": "feature",
+                  "copy": "Apple: iPhone 17"
+                }
+              ]
+            },
+            {
+              "id": "ipad-pro-fdaf64",
+              "name": "iPad Pro",
+              "category": "research",
+              "keywords": [
+                "iPhone 17 Pro",
+                "iPhone 17",
+                "iPad Pro",
+                "iPad Air",
+                "Mac",
+                "Apple Watch",
+                "AirPods",
+                "Apple Vision Pro"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "ipad-pro-empathy",
+                  "tone": "empathy",
+                  "copy": "iPad Pro \u2014 discover how Apple can help."
+                },
+                {
+                  "id": "ipad-pro-feature",
+                  "tone": "feature",
+                  "copy": "Apple: iPad Pro"
+                }
+              ]
+            },
+            {
+              "id": "ipad-air-0b8b4b",
+              "name": "iPad Air",
+              "category": "research",
+              "keywords": [
+                "iPhone 17 Pro",
+                "iPhone 17",
+                "iPad Pro",
+                "iPad Air",
+                "Mac",
+                "Apple Watch",
+                "AirPods",
+                "Apple Vision Pro"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "ipad-air-empathy",
+                  "tone": "empathy",
+                  "copy": "iPad Air \u2014 discover how Apple can help."
+                },
+                {
+                  "id": "ipad-air-feature",
+                  "tone": "feature",
+                  "copy": "Apple: iPad Air"
+                }
+              ]
+            },
+            {
+              "id": "apple-card-575312",
+              "name": "Apple Card",
+              "category": "research",
+              "keywords": [
+                "iPhone 17 Pro",
+                "iPhone 17",
+                "iPad Pro",
+                "iPad Air",
+                "Mac",
+                "Apple Watch",
+                "AirPods",
+                "Apple Vision Pro"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "apple-card-empathy",
+                  "tone": "empathy",
+                  "copy": "Apple Card \u2014 discover how Apple can help."
+                },
+                {
+                  "id": "apple-card-feature",
+                  "tone": "feature",
+                  "copy": "Apple: Apple Card"
+                }
+              ]
+            }
+          ]
+        },
+        "campaign_defaults": {
+          "daily_budget": 500.0,
+          "cvr_floor": 0.02,
+          "bid_strategy": "conversion_optimized"
+        },
+        "source": {
+          "tavily_extract": {
+            "source": "tavily_extract",
+            "failed": [],
+            "chars": 15099,
+            "urls_scraped": [
+              "https://www.apple.com/",
+              "https://www.apple.com/about",
+              "https://www.apple.com/about-us",
+              "https://www.apple.com/about_us",
+              "https://www.apple.com/company"
+            ],
+            "content_quality": 0.974
+          },
+          "content_preview": "### Shop and Learn Shop and Learn\n\n### Apple Wallet Apple Wallet\n\n### Account Account\n\n### Entertainment Entertainment\n\n### Apple Store Apple Store\n\n### For Business For Business\n\n### For Education For Education\n\n### For Healthcare For Healthcare\n\n### For Government For Government\n\n### Apple Values Apple Values\n\n### About Apple About Apple [...] A-List Pop\n\nA-List Pop\n\nSpongeBob: Patty Pursuit 2\n\nAsian-Pacific American Heritage Month\n\nNew Music Daily\n\nNew Music Daily\n\n## Apple Footer [...] ### W",
+          "structured_by": "llm"
+        }
+      },
+      "updated_at": "2026-05-28T19:50:57.207706+00:00"
+    },
+    "c302d428-5612-45c2-ba94-3a2248d5315a": {
+      "id": "c302d428-5612-45c2-ba94-3a2248d5315a",
+      "website_url": "https://www.uniqlo.com/",
+      "ad_plan": {
+        "brand_profile": {
+          "name": "Uniqlo",
+          "website": "https://www.uniqlo.com/",
+          "domain": "www.uniqlo.com",
+          "voice": "professional",
+          "value_props": [
+            "Free shipping on orders $99+",
+            "Membership savings up to $20",
+            "Buy now, pay later with Klarna",
+            "Repair services via RE.UNIQLO STUDIO",
+            "PEACE FOR ALL initiative using T-shirts to spread peace"
+          ],
+          "keywords": [
+            "LifeWear",
+            "UT Collections",
+            "Graphic Tees",
+            "Sustainability",
+            "PEACE FOR ALL",
+            "RE.UNIQLO STUDIO",
+            "Spring/Summer Collection",
+            "T-shirts",
+            "New Arrivals",
+            "Best Sellers",
+            "Newborn & Infant",
+            "Toddler"
+          ],
+          "summary": "Uniqlo creates LifeWear, simple clothing made better to improve customers' lives and communities through sustainability and thoughtful design."
+        },
+        "creative_guidelines": {
+          "preferred_tones": [
+            "urgency",
+            "empathy"
+          ],
+          "avoid_tones": [
+            "urgency"
+          ],
+          "notes": null
+        },
+        "guardrails": {
+          "blocked_terms": [],
+          "blocked_topics": []
+        },
+        "suggested_catalog": {
+          "products": [
+            {
+              "id": "peanuts-snoopy-summer-camp-716bc7",
+              "name": "PEANUTS Snoopy Summer Camp",
+              "category": "research",
+              "keywords": [
+                "LifeWear",
+                "UT Collections",
+                "Graphic Tees",
+                "Sustainability",
+                "PEACE FOR ALL",
+                "RE.UNIQLO STUDIO",
+                "Spring/Summer Collection",
+                "T-shirts"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "peanuts-snoopy-summer-camp-empathy",
+                  "tone": "empathy",
+                  "copy": "PEANUTS Snoopy Summer Camp \u2014 discover how Uniqlo can help."
+                },
+                {
+                  "id": "peanuts-snoopy-summer-camp-feature",
+                  "tone": "feature",
+                  "copy": "Uniqlo: PEANUTS Snoopy Summer Camp"
+                }
+              ]
+            },
+            {
+              "id": "utme-777153",
+              "name": "UTme!",
+              "category": "research",
+              "keywords": [
+                "LifeWear",
+                "UT Collections",
+                "Graphic Tees",
+                "Sustainability",
+                "PEACE FOR ALL",
+                "RE.UNIQLO STUDIO",
+                "Spring/Summer Collection",
+                "T-shirts"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "utme-empathy",
+                  "tone": "empathy",
+                  "copy": "UTme! \u2014 discover how Uniqlo can help."
+                },
+                {
+                  "id": "utme-feature",
+                  "tone": "feature",
+                  "copy": "Uniqlo: UTme!"
+                }
+              ]
+            },
+            {
+              "id": "lifewear-collection-2026-spring-33cc41",
+              "name": "LifeWear Collection 2026 Spring",
+              "category": "research",
+              "keywords": [
+                "LifeWear",
+                "UT Collections",
+                "Graphic Tees",
+                "Sustainability",
+                "PEACE FOR ALL",
+                "RE.UNIQLO STUDIO",
+                "Spring/Summer Collection",
+                "T-shirts"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "lifewear-collection-2026-spring-empathy",
+                  "tone": "empathy",
+                  "copy": "LifeWear Collection 2026 Spring \u2014 discover how Uniqlo can help."
+                },
+                {
+                  "id": "lifewear-collection-2026-spring-feature",
+                  "tone": "feature",
+                  "copy": "Uniqlo: LifeWear Collection 2026 Spring"
+                }
+              ]
+            }
+          ]
+        },
+        "campaign_defaults": {
+          "daily_budget": 500.0,
+          "cvr_floor": 0.02,
+          "bid_strategy": "conversion_optimized"
+        },
+        "source": {
+          "tavily_extract": {
+            "source": "tavily_extract",
+            "method": "extract",
+            "failed": [
+              {
+                "url": "https://www.uniqlo.com/about-us",
+                "error": "404 page not found"
+              },
+              {
+                "url": "https://www.uniqlo.com/about_us",
+                "error": "404 page not found"
+              },
+              {
+                "url": "https://www.uniqlo.com/company",
+                "error": "404 page not found"
+              },
+              {
+                "url": "https://www.uniqlo.com/about",
+                "error": "404 page not found"
+              }
+            ],
+            "chars": 2880,
+            "urls_scraped": [
+              "https://www.uniqlo.com/",
+              "https://www.uniqlo.com/about",
+              "https://www.uniqlo.com/about-us",
+              "https://www.uniqlo.com/about_us",
+              "https://www.uniqlo.com/company"
+            ],
+            "content_quality": 0.78,
+            "crawl_pages": 0,
+            "crawl_urls": [],
+            "crawl_failed": [
+              {
+                "url": "https://www.uniqlo.com/",
+                "error": "Client error '401 Unauthorized' for url 'https://api.tavily.com/crawl'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401"
+              }
+            ],
+            "crawl_settings": {
+              "max_depth": 2,
+              "max_breadth": 15,
+              "limit": 25
+            }
+          },
+          "content_preview": "Help\n\n   My Account\n   Store Locator\n   Exchanges & Returns\n   Gift Card\n   Contact Us & FAQ\n\nAbout\n\n   Company\n   Sustainability\n   Careers\n   UNIQLO App\n\nGroup company\n\n   GU\n   Theory\n   Helmut Lang\n\nFREE shipping $99+ | FREE in-store pick up\n\nJoin our membership & save up to $20!Buy now, pay later with Klarna\n\n   Accessibility\n   Terms & Conditions\n   Privacy Policy\n   Do Not Sell My Information\n   Ad Choices\n\nCookie Settings\n\n  \n\n   Copyright \u00a9 UNIQLO Co., Ltd. All rights reserved.\n\n   Imag",
+          "structured_by": "llm"
+        }
+      },
+      "updated_at": "2026-05-28T20:09:52.311845+00:00"
+    },
+    "48edaed8-75e4-4ca6-97ca-d9d69b1fc928": {
+      "id": "48edaed8-75e4-4ca6-97ca-d9d69b1fc928",
+      "website_url": "https://www.uniqlo.com/",
+      "ad_plan": {
+        "brand_profile": {
+          "name": "Kids\u2019 Sale",
+          "website": "https://www.uniqlo.com/",
+          "domain": "www.uniqlo.com",
+          "voice": "professional",
+          "value_props": [
+            "Affordable sale prices",
+            "Comfortable everyday essentials",
+            "Play-ready styles",
+            "Recycled materials options",
+            "Limited-time deals"
+          ],
+          "keywords": [
+            "UNIQLO",
+            "kids sale",
+            "UT Graphic T-Shirt",
+            "Cotton Inner Tank Top",
+            "DRY Sweatshirt",
+            "Wide Straight Jeans",
+            "Easy Shorts",
+            "bodysuit",
+            "Memorial Day Sale",
+            "Toy Story",
+            "Sanrio",
+            "POP MART"
+          ],
+          "summary": "Shop UNIQLO\u2019s Sale for comfort and play-ready essentials now for less. Features discounted graphic t-shirts, sweatshirts, jeans, shorts and bodysuits for kids and baby."
+        },
+        "creative_guidelines": {
+          "preferred_tones": [
+            "urgency",
+            "empathy"
+          ],
+          "avoid_tones": [
+            "urgency"
+          ],
+          "notes": null
+        },
+        "guardrails": {
+          "blocked_terms": [],
+          "blocked_topics": []
+        },
+        "suggested_catalog": {
+          "products": [
+            {
+              "id": "cotton-inner-tank-top-2-pack-597d02",
+              "name": "Cotton Inner Tank Top | 2 Pack",
+              "category": "research",
+              "keywords": [
+                "UNIQLO",
+                "kids sale",
+                "UT Graphic T-Shirt",
+                "Cotton Inner Tank Top",
+                "DRY Sweatshirt",
+                "Wide Straight Jeans",
+                "Easy Shorts",
+                "bodysuit"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "cotton-inner-tank-top-2-pack-empathy",
+                  "tone": "empathy",
+                  "copy": "Cotton Inner Tank Top | 2 Pack \u2014 discover how Kids\u2019 Sale can help."
+                },
+                {
+                  "id": "cotton-inner-tank-top-2-pack-feature",
+                  "tone": "feature",
+                  "copy": "Kids\u2019 Sale: Cotton Inner Tank Top | 2 Pack"
+                }
+              ]
+            },
+            {
+              "id": "jason-polan-ut-graphic-t-shirt-427f71",
+              "name": "Jason Polan UT Graphic T-Shirt",
+              "category": "research",
+              "keywords": [
+                "UNIQLO",
+                "kids sale",
+                "UT Graphic T-Shirt",
+                "Cotton Inner Tank Top",
+                "DRY Sweatshirt",
+                "Wide Straight Jeans",
+                "Easy Shorts",
+                "bodysuit"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "jason-polan-ut-graphic-t-shirt-empathy",
+                  "tone": "empathy",
+                  "copy": "Jason Polan UT Graphic T-Shirt \u2014 discover how Kids\u2019 Sale can help."
+                },
+                {
+                  "id": "jason-polan-ut-graphic-t-shirt-feature",
+                  "tone": "feature",
+                  "copy": "Kids\u2019 Sale: Jason Polan UT Graphic T-Shirt"
+                }
+              ]
+            },
+            {
+              "id": "toy-story-ut-graphic-t-shirt-94175a",
+              "name": "TOY STORY UT Graphic T-Shirt",
+              "category": "research",
+              "keywords": [
+                "UNIQLO",
+                "kids sale",
+                "UT Graphic T-Shirt",
+                "Cotton Inner Tank Top",
+                "DRY Sweatshirt",
+                "Wide Straight Jeans",
+                "Easy Shorts",
+                "bodysuit"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "toy-story-ut-graphic-t-shirt-empathy",
+                  "tone": "empathy",
+                  "copy": "TOY STORY UT Graphic T-Shirt \u2014 discover how Kids\u2019 Sale can help."
+                },
+                {
+                  "id": "toy-story-ut-graphic-t-shirt-feature",
+                  "tone": "feature",
+                  "copy": "Kids\u2019 Sale: TOY STORY UT Graphic T-Shirt"
+                }
+              ]
+            },
+            {
+              "id": "dry-sweatshirt-5a9e46",
+              "name": "DRY Sweatshirt",
+              "category": "research",
+              "keywords": [
+                "UNIQLO",
+                "kids sale",
+                "UT Graphic T-Shirt",
+                "Cotton Inner Tank Top",
+                "DRY Sweatshirt",
+                "Wide Straight Jeans",
+                "Easy Shorts",
+                "bodysuit"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "dry-sweatshirt-empathy",
+                  "tone": "empathy",
+                  "copy": "DRY Sweatshirt \u2014 discover how Kids\u2019 Sale can help."
+                },
+                {
+                  "id": "dry-sweatshirt-feature",
+                  "tone": "feature",
+                  "copy": "Kids\u2019 Sale: DRY Sweatshirt"
+                }
+              ]
+            },
+            {
+              "id": "wide-straight-jeans-8a481e",
+              "name": "Wide Straight Jeans",
+              "category": "research",
+              "keywords": [
+                "UNIQLO",
+                "kids sale",
+                "UT Graphic T-Shirt",
+                "Cotton Inner Tank Top",
+                "DRY Sweatshirt",
+                "Wide Straight Jeans",
+                "Easy Shorts",
+                "bodysuit"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "wide-straight-jeans-empathy",
+                  "tone": "empathy",
+                  "copy": "Wide Straight Jeans \u2014 discover how Kids\u2019 Sale can help."
+                },
+                {
+                  "id": "wide-straight-jeans-feature",
+                  "tone": "feature",
+                  "copy": "Kids\u2019 Sale: Wide Straight Jeans"
+                }
+              ]
+            }
+          ]
+        },
+        "campaign_defaults": {
+          "daily_budget": 500.0,
+          "cvr_floor": 0.02,
+          "bid_strategy": "conversion_optimized"
+        },
+        "source": {
+          "tavily_extract": {
+            "source": "tavily_crawl",
+            "method": "crawl",
+            "storefront_url": "https://www.uniqlo.com/us/en/",
+            "failed": [],
+            "chars": 22000,
+            "pages_crawled": 5,
+            "urls_crawled": [
+              "https://www.uniqlo.com/us/en/feature/sale/kids",
+              "https://www.uniqlo.com/us/en/baby/newborn/bodysuits",
+              "https://www.uniqlo.com/us/en/kids/sport-utility-wear",
+              "https://www.uniqlo.com/us/en/baby/newborn",
+              "https://www.uniqlo.com/us/en/baby/toddler"
+            ],
+            "content_quality": 0.905,
+            "crawl_settings": {
+              "max_depth": 2,
+              "max_breadth": 15,
+              "limit": 25
+            }
+          },
+          "content_preview": "## Page: https://www.uniqlo.com/us/en/feature/sale/kids\n\n[SHOP MEMORIAL DAY SALE + Get Your FREE Gift!](https://www.uniqlo.com/us/en/spl/memorial-day-sale)\n\n[women](/us/en/)[men](/us/en/men)kids[baby](/us/en/baby)\n\n# Kids\u2019 Sale\n\nShop UNIQLO\u2019s Sale for comfort and play-ready essentials now for less.\n\n[Shop all Memorial Day Sale here.](https://www.uniqlo.com/us/en/spl/memorial-day-sale?path=22212%2C%2C%2C)\n\n[WOMEN](/us/en/feature/sale/women)[MEN](/us/en/feature/sale/men)KIDS[BABY](/us/en/feature/s",
+          "structured_by": "llm"
+        }
+      },
+      "updated_at": "2026-05-28T20:25:23.988026+00:00"
+    },
+    "522e9d78-bf2c-4990-ba45-c7ee99a0e1da": {
+      "id": "522e9d78-bf2c-4990-ba45-c7ee99a0e1da",
+      "website_url": "https://www.uniqlo.com/",
+      "ad_plan": {
+        "brand_profile": {
+          "name": "Baby Bodysuits",
+          "website": "https://www.uniqlo.com/",
+          "domain": "www.uniqlo.com",
+          "voice": "professional",
+          "value_props": [
+            "Short and long sleeve options",
+            "Pointelle and striped patterns",
+            "Printed designs including miffy",
+            "Open front styles available",
+            "Cotton mesh fabric options"
+          ],
+          "keywords": [
+            "Baby Short Sleeve Bodysuit",
+            "Baby Pointelle Bodysuit",
+            "Baby Bodysuit Striped",
+            "Baby Long Sleeve Bodysuit",
+            "Baby Sleeveless Cotton Mesh Bodysuit",
+            "Open Front",
+            "Printed",
+            "Pointelle",
+            "Striped",
+            "miffy",
+            "Cotton",
+            "Sale"
+          ],
+          "summary": "UNIQLO offers a range of baby bodysuits in short sleeve, long sleeve, and sleeveless styles with pointelle, striped, printed, and open front options. Select styles feature miffy prints and are marked on sale."
+        },
+        "creative_guidelines": {
+          "preferred_tones": [
+            "empathy",
+            "urgency"
+          ],
+          "avoid_tones": [],
+          "notes": null
+        },
+        "guardrails": {
+          "blocked_terms": [],
+          "blocked_topics": []
+        },
+        "suggested_catalog": {
+          "products": [
+            {
+              "id": "baby-short-sleeve-bodysuit-8f730c",
+              "name": "Baby Short Sleeve Bodysuit",
+              "category": "research",
+              "keywords": [
+                "Baby Short Sleeve Bodysuit",
+                "Baby Pointelle Bodysuit",
+                "Baby Bodysuit Striped",
+                "Baby Long Sleeve Bodysuit",
+                "Baby Sleeveless Cotton Mesh Bodysuit",
+                "Open Front",
+                "Printed",
+                "Pointelle"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "baby-short-sleeve-bodysuit-empathy",
+                  "tone": "empathy",
+                  "copy": "Baby Short Sleeve Bodysuit \u2014 discover how Baby Bodysuits can help."
+                },
+                {
+                  "id": "baby-short-sleeve-bodysuit-feature",
+                  "tone": "feature",
+                  "copy": "Baby Bodysuits: Baby Short Sleeve Bodysuit"
+                }
+              ]
+            },
+            {
+              "id": "baby-pointelle-bodysuit-01212e",
+              "name": "Baby Pointelle Bodysuit",
+              "category": "research",
+              "keywords": [
+                "Baby Short Sleeve Bodysuit",
+                "Baby Pointelle Bodysuit",
+                "Baby Bodysuit Striped",
+                "Baby Long Sleeve Bodysuit",
+                "Baby Sleeveless Cotton Mesh Bodysuit",
+                "Open Front",
+                "Printed",
+                "Pointelle"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "baby-pointelle-bodysuit-empathy",
+                  "tone": "empathy",
+                  "copy": "Baby Pointelle Bodysuit \u2014 discover how Baby Bodysuits can help."
+                },
+                {
+                  "id": "baby-pointelle-bodysuit-feature",
+                  "tone": "feature",
+                  "copy": "Baby Bodysuits: Baby Pointelle Bodysuit"
+                }
+              ]
+            },
+            {
+              "id": "baby-short-sleeve-bodysuit-printed-7ddcc2",
+              "name": "Baby Short Sleeve Bodysuit | Printed",
+              "category": "research",
+              "keywords": [
+                "Baby Short Sleeve Bodysuit",
+                "Baby Pointelle Bodysuit",
+                "Baby Bodysuit Striped",
+                "Baby Long Sleeve Bodysuit",
+                "Baby Sleeveless Cotton Mesh Bodysuit",
+                "Open Front",
+                "Printed",
+                "Pointelle"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "baby-short-sleeve-bodysuit-printed-empathy",
+                  "tone": "empathy",
+                  "copy": "Baby Short Sleeve Bodysuit | Printed \u2014 discover how Baby Bodysuits can help."
+                },
+                {
+                  "id": "baby-short-sleeve-bodysuit-printed-feature",
+                  "tone": "feature",
+                  "copy": "Baby Bodysuits: Baby Short Sleeve Bodysuit | Printed"
+                }
+              ]
+            },
+            {
+              "id": "baby-bodysuit-striped-286017",
+              "name": "Baby Bodysuit | Striped",
+              "category": "research",
+              "keywords": [
+                "Baby Short Sleeve Bodysuit",
+                "Baby Pointelle Bodysuit",
+                "Baby Bodysuit Striped",
+                "Baby Long Sleeve Bodysuit",
+                "Baby Sleeveless Cotton Mesh Bodysuit",
+                "Open Front",
+                "Printed",
+                "Pointelle"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "baby-bodysuit-striped-empathy",
+                  "tone": "empathy",
+                  "copy": "Baby Bodysuit | Striped \u2014 discover how Baby Bodysuits can help."
+                },
+                {
+                  "id": "baby-bodysuit-striped-feature",
+                  "tone": "feature",
+                  "copy": "Baby Bodysuits: Baby Bodysuit | Striped"
+                }
+              ]
+            },
+            {
+              "id": "baby-the-picture-book-collection-bodysui-cb322f",
+              "name": "Baby The Picture Book Collection Bodysuit Short Sleeve | miffy",
+              "category": "research",
+              "keywords": [
+                "Baby Short Sleeve Bodysuit",
+                "Baby Pointelle Bodysuit",
+                "Baby Bodysuit Striped",
+                "Baby Long Sleeve Bodysuit",
+                "Baby Sleeveless Cotton Mesh Bodysuit",
+                "Open Front",
+                "Printed",
+                "Pointelle"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "baby-the-picture-book-collection-bodysui-empathy",
+                  "tone": "empathy",
+                  "copy": "Baby The Picture Book Collection Bodysuit Short Sleeve | miffy \u2014 discover how Baby Bodysuits can help."
+                },
+                {
+                  "id": "baby-the-picture-book-collection-bodysui-feature",
+                  "tone": "feature",
+                  "copy": "Baby Bodysuits: Baby The Picture Book Collection Bodysuit Short Sleeve | miffy"
+                }
+              ]
+            }
+          ]
+        },
+        "campaign_defaults": {
+          "daily_budget": 500.0,
+          "cvr_floor": 0.02,
+          "bid_strategy": "conversion_optimized"
+        },
+        "source": {
+          "tavily_extract": {
+            "source": "tavily_crawl",
+            "method": "crawl",
+            "storefront_url": "https://www.uniqlo.com/us/en/",
+            "failed": [],
+            "chars": 22000,
+            "pages_crawled": 6,
+            "urls_crawled": [
+              "https://www.uniqlo.com/us/en/baby/newborn/bodysuits",
+              "https://www.uniqlo.com/us/en/kids/sport-utility-wear",
+              "https://www.uniqlo.com/us/en/kids/tops/t-shirts",
+              "https://www.uniqlo.com/us/en/baby/newborn",
+              "https://www.uniqlo.com/us/en/baby/toddler",
+              "https://www.uniqlo.com/us/en/kids/bottoms/shorts"
+            ],
+            "content_quality": 0.803,
+            "crawl_settings": {
+              "max_depth": 2,
+              "max_breadth": 15,
+              "limit": 25
+            }
+          },
+          "content_preview": "## Page: https://www.uniqlo.com/us/en/baby/newborn/bodysuits\n\nSHOP MEMORIAL DAY SALE\n\n# Baby Bodysuits\n\nSelect a store to search store stock\n\n![Baby Short Sleeve Bodysuit](https://image.uniqlo.com/UQ/ST3/WesternCommon/imagesgoods/481836/item/goods_00_481836_3x4.jpg?width=250)\n\n## Baby Short Sleeve Bodysuit\n\n![Baby Short Sleeve Bodysuit](https://image.uniqlo.com/UQ/ST3/WesternCommon/imagesgoods/481838/item/goods_10_481838_3x4.jpg?width=250)\n\n## Baby Short Sleeve Bodysuit\n\n![Baby Pointelle Bodysui",
+          "structured_by": "llm"
+        }
+      },
+      "updated_at": "2026-05-28T20:26:06.727416+00:00"
     }
   }
 }

@@ -133,6 +133,31 @@ def decide(
 
     scored.sort(key=lambda x: (x.get("ev", 0), x.get("p_cvr", 0)), reverse=True)
 
+    intent_floor = policies.get("intent_score_floor", 0.18)
+    best_intent = max((c["intent_score"] for c in scored), default=0.0)
+    if not scored or best_intent < intent_floor:
+        trace.append({
+            "step": "intent_floor",
+            "best_intent": best_intent,
+            "floor": intent_floor,
+        })
+        return {
+            "session_id": session_id,
+            "intent": intent,
+            "action": "no_bid",
+            "winner": None,
+            "candidates": [_public_candidate(c) for c in scored],
+            "placement_id": None,
+            "escalate_reasons": [],
+            "trace": trace,
+            "mode": "baseline" if use_baseline else "optimized",
+            "brand_id": brand_id,
+            "no_recommend_reason": (
+                f"Top intent score {best_intent:.2f} below floor {intent_floor:.2f}"
+            ),
+            "recommendation_threshold": intent_floor,
+        }
+
     winner = None
     action = "no_bid"
     escalate_reasons = []

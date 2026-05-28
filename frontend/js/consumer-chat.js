@@ -92,6 +92,7 @@ function renderDecidePanel(decision) {
   el.innerHTML = `
     <div style="margin-bottom:10px">
       <span class="action-badge action-${action}">${action.replace('_', ' ')}</span>
+      ${decision.no_recommend_reason ? `<span style="font-size:10px;color:var(--text2);margin-left:8px">${decision.no_recommend_reason}</span>` : ''}
       ${decision.escalate_reasons?.length ? `<span style="font-size:10px;color:var(--amber);margin-left:8px">${decision.escalate_reasons.join('; ')}</span>` : ''}
     </div>
     ${winner ? `
@@ -163,16 +164,18 @@ async function sendConsumerMessage() {
 
     document.getElementById('placementMeta').textContent = currentPlacementId
       ? `Placement ${currentPlacementId.slice(0, 8)}… · Click “Learn more” on the ad to count a click`
-      : decision?.action === 'no_bid'
-        ? 'No bid — below CVR floor or safety gate'
-        : decision?.action === 'escalate'
-          ? `Escalated: ${(decision.escalate_reasons || []).join(', ')}`
-          : '';
+      : decision?.no_recommend_reason
+        ? `No recommendation — ${decision.no_recommend_reason}`
+        : data.auction?.no_recommend_reason
+          ? `No recommendation — ${data.auction.no_recommend_reason}`
+          : decision?.action === 'no_bid'
+            ? 'No bid — below score floor, CVR floor, or safety gate'
+            : decision?.action === 'escalate'
+              ? `Escalated: ${(decision.escalate_reasons || []).join(', ')}`
+              : '';
 
     if (decision?.action === 'serve' && decision.winner) {
       await appendInlineAd(decision.winner, 'decision');
-    } else if (data.auction?.winner?.relevance_score > 0.18) {
-      await appendInlineAd(data.auction.winner, 'auction');
     }
 
     renderDecidePanel(decision);

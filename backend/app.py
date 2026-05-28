@@ -158,35 +158,70 @@ def health():
     }
 
 
-def _llm_reply(message: str, conversation_history: list[dict]) -> str:
+def _llm_reply(
+    message: str,
+    conversation_history: list[dict],
+    placement: dict | None = None,
+) -> str:
     key = os.environ.get("XAI_API_KEY")
     if not key:
-        snippet = message[:80] + ("…" if len(message) > 80 else "")
-        return (
-            f"Got it — you're asking about \"{snippet}\". "
-            "Set XAI_API_KEY for live Grok replies; the ad auction still ran."
-        )
+        return _llm_reply_fallback(message, placement)
 
     from openai import OpenAI
 
     model = os.environ.get("XAI_MODEL", "grok-3-fast")
     client = OpenAI(base_url="https://api.x.ai/v1", api_key=key)
-    messages = conversation_history + [{"role": "user", "content": message}]
+
+    system = (
+        "You are a helpful, concise assistant. Respond in 2-4 sentences. "
+        "Be natural, warm, and direct—like a knowledgeable friend, not a marketer."
+    )
+    user_content = message
+    if placement and placement.get("product_name"):
+        name = placement["product_name"]
+        copy = placement.get("copy") or placement.get("ad_copy") or ""
+        system += (
+            " The user should receive a useful answer first. When a sponsored product fits, "
+            "mention it by name inside your reply as a natural recommendation—not a separate ad block. "
+            "Weave one concrete detail from the product copy into your suggestion. "
+            "Keep the sponsored mention to one short sentence and briefly note it is sponsored."
+        )
+        user_content = (
+            f"{message}\n\n"
+            f"[Sponsored product to integrate naturally if relevant: {name}. "
+            f"Product detail: {copy}]"
+        )
+
+    messages = conversation_history + [{"role": "user", "content": user_content}]
     ai_response = client.chat.completions.create(
         model=model,
-        max_tokens=400,
-        messages=[
-            {
-                "role": "system",
-                "content": (
-                    "You are a helpful, concise assistant. "
-                    "Respond in 2-3 sentences. Be natural and direct."
-                ),
-            }
-        ]
-        + messages,
+        max_tokens=450,
+        messages=[{"role": "system", "content": system}] + messages,
     )
     return ai_response.choices[0].message.content
+
+
+def _llm_reply_fallback(message: str, placement: dict | None = None) -> str:
+    snippet = message[:80] + ("…" if len(message) > 80 else "")
+    if placement and placement.get("product_name"):
+        name = placement["product_name"]
+        copy = placement.get("copy") or placement.get("ad_copy") or ""
+        return (
+            f"Based on what you shared — \"{snippet}\" — I'd focus on practical relief first. "
+            f"If you want a specific option to try, {name} might be worth a look: {copy} "
+            f"(Sponsored suggestion.) Set XAI_API_KEY for live Grok replies."
+        )
+    return (
+        f"Got it — you're asking about \"{snippet}\". "
+        "Set XAI_API_KEY for live Grok replies; the ad auction still ran."
+    )
+
+
+def _placement_for_llm(decision: dict, auction: dict) -> dict | None:
+    """Only pass a product to Grok when the agent actually serves a placement."""
+    if decision.get("action") == "serve" and decision.get("winner"):
+        return decision["winner"]
+    return None
 
 
 def _advertiser_advisor_reply(message: str, context: dict) -> str:
@@ -252,9 +287,12 @@ async def api_placement_preview(req: PlacementPreviewRequest):
         decision["tribe_available"] = True
         decision["fit_mode"] = DEMO_MODE
         llm_response = None
+        placement_ctx = _placement_for_llm(decision, auction)
         if req.include_llm:
             try:
-                llm_response = _llm_reply(user_text, req.conversation_history)
+                llm_response = _llm_reply(
+                    user_text, req.conversation_history, placement_ctx
+                )
             except Exception as exc:
                 llm_response = f"LLM unavailable ({exc}). Placement decision still computed."
         dashboard_snapshot = get_dashboard_stats()
@@ -489,7 +527,7 @@ def api_catalog():
 
 @app.post("/api/brand/onboard")
 async def api_brand_onboard(req: BrandOnboardRequest):
-    """Scrape advertiser website via Tavily Extract and generate an ad plan."""
+    """Scrape advertiser website via Tavily Crawl (+ Extract fallback) and generate an ad plan."""
     from agent.brand_onboarding import create_ad_plan_from_website
     from agent.brand_store import set_active_brand
 

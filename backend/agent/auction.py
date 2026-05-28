@@ -4,6 +4,7 @@ import time
 import uuid
 
 from agent.embedding_ranker import compute_relevance, get_all_bidders
+from agent.catalog import load_policies
 
 auction_log: list[dict] = []
 
@@ -37,18 +38,30 @@ def run_auction(context: str) -> dict:
 
     bids.sort(key=lambda x: x["effective_cpm"], reverse=True)
 
-    if not bids or bids[0]["effective_cpm"] <= 0:
+    policies = load_policies()
+    relevance_floor = policies.get("relevance_score_floor", 0.18)
+
+    if (
+        not bids
+        or bids[0]["effective_cpm"] <= 0
+        or bids[0]["relevance_score"] < relevance_floor
+    ):
         latency_ms = round((time.perf_counter_ns() - start_ns) / 1_000_000, 3)
+        best_rel = bids[0]["relevance_score"] if bids else 0.0
         empty_winner = {
             "advertiser_id": "none",
             "advertiser_name": "No bid",
             "logo": "—",
             "category": "—",
-            "relevance_score": 0.0,
+            "relevance_score": best_rel,
             "effective_cpm": 0.0,
             "clearing_price_cpm": 0.0,
             "savings_vs_max": 0.0,
-            "ad_copy": "No relevant ad for this context.",
+            "ad_copy": (
+                f"No relevant ad (top relevance {best_rel:.2f} below floor {relevance_floor:.2f})."
+                if bids
+                else "No relevant ad for this context."
+            ),
             "cta": "",
         }
         record = {
@@ -59,6 +72,12 @@ def run_auction(context: str) -> dict:
             "all_bids": bids,
             "latency_ms": latency_ms,
             "total_bidders": len(bids),
+            "relevance_floor": relevance_floor,
+            "no_recommend_reason": (
+                f"Top relevance {best_rel:.2f} below floor {relevance_floor:.2f}"
+                if bids
+                else None
+            ),
         }
         auction_log.append(record)
         return record

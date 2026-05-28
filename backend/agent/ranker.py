@@ -23,6 +23,8 @@ def _keyword_rank(user_text: str, top_k: int) -> list[dict]:
             cluster_score = max(cluster_score, 0.5)
 
         intent_score = 0.65 * kw_score + 0.35 * min(1.0, cluster_score * 3)
+        if kw_hits == 0:
+            intent_score = min(intent_score, 0.1)
 
         rationale_parts = []
         if kw_hits:
@@ -50,7 +52,7 @@ def rank_products(user_text: str, top_k: int = 5) -> list[dict]:
         from agent.embedding_ranker import rank_products_semantic
 
         semantic = rank_products_semantic(user_text, top_k)
-        if semantic and semantic[0]["intent_score"] > 0:
+        if semantic:
             return semantic
     except Exception:
         pass

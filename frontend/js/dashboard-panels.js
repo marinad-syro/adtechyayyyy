@@ -178,9 +178,18 @@ export async function initDashboardPanels() {
         activate: true,
       });
       const n = result.ad_plan?.suggested_catalog?.products?.length || 0;
+      const meta = result.ad_plan?.source?.tavily_extract || {};
+      const pages = meta.pages_crawled ?? meta.crawl_pages ?? meta.urls_scraped?.length;
+      const method = meta.method;
+      const crawlNote =
+        pages != null && method
+          ? ` (${pages} pages via ${method})`
+          : pages != null
+            ? ` (${pages} pages scraped)`
+            : '';
       if (resultEl) {
         resultEl.className = 'onboard-result success';
-        resultEl.textContent = `✓ ${n} product${n === 1 ? '' : 's'} loaded. Try a prompt in chat preview →`;
+        resultEl.textContent = `✓ ${n} product${n === 1 ? '' : 's'} loaded${crawlNote}. Try a prompt in chat preview →`;
       }
       sessionStorage.setItem(ACTIVE_BRAND_KEY, result.brand_id);
       showToast('Catalog ready — try chat preview');

@@ -31,6 +31,61 @@ BRAND_QUERY = (
     "pricing tone of voice about the company sustainability"
 )
 
+CRAWL_INSTRUCTIONS = (
+    "Find product pages, product listings, shop and collection pages, and brand "
+    "about/mission pages. Include product names, descriptions, features, and "
+    "pricing when present."
+)
+
+CRAWL_SELECT_PATHS = [
+    r"/products?/.*",
+    r"/.*/products/.*",
+    r"/.*/(men|women|kids|baby)/.*",
+    r"/feature/.*",
+    r"/special-feature/.*",
+    r"/shop/.*",
+    r"/collections?/.*",
+    r"/catalog/.*",
+    r"/store/.*",
+    r"/about.*",
+    r"/company.*",
+    r"/our-story.*",
+    r"/pages/.*",
+]
+
+CRAWL_EXCLUDE_PATHS = [
+    r"/cart.*",
+    r"/checkout.*",
+    r"/account.*",
+    r"/login.*",
+    r"/signup.*",
+    r"/register.*",
+    r"/privacy.*",
+    r"/terms.*",
+    r"/legal.*",
+    r"/blog/.*",
+    r"/news/.*",
+    r"/careers.*",
+    r"/jobs.*",
+    r"/support/.*",
+    r"/help/.*",
+    r"/faq/.*",
+]
+
+_PRODUCT_URL_HINT = re.compile(
+    r"/products?/|/shop/|/collections?/|/(men|women|kids|baby)/|/feature/|/special-feature/",
+    re.I,
+)
+_LOCALE_STOREFRONT = re.compile(
+    r"https?://[^\s)\]\"']+/(?:us|uk|ca|au|jp|eu)/(?:en|[a-z]{2})/?",
+    re.I,
+)
+_CATEGORY_LINK = re.compile(
+    r"https?://[^\s)\]\"']+/(?:men|women|kids|baby|feature|special-feature|products|shop)/[^\s)\]\"']*",
+    re.I,
+)
+_ABOUT_URL_HINT = re.compile(r"/about|/company|/our-story", re.I)
+
 ABOUT_PATHS = (
     "",
     "/about",
@@ -52,6 +107,36 @@ def _api_key() -> str | None:
     return os.environ.get("TAVILY_API_KEY")
 
 
+def _crawl_enabled() -> bool:
+    if os.environ.get("TAVILY_USE_CRAWL", "true").lower() in ("0", "false", "no"):
+        return False
+    return bool(_api_key())
+
+
+def _crawl_settings() -> dict:
+    def _int(name: str, default: int, lo: int, hi: int) -> int:
+        try:
+            return max(lo, min(hi, int(os.environ.get(name, default))))
+        except (TypeError, ValueError):
+            return default
+
+    return {
+        "max_depth": _int("TAVILY_CRAWL_MAX_DEPTH", 2, 1, 5),
+        "max_breadth": _int("TAVILY_CRAWL_MAX_BREADTH", 15, 1, 500),
+        "limit": _int("TAVILY_CRAWL_LIMIT", 25, 1, 100),
+        "timeout": _int("TAVILY_CRAWL_TIMEOUT", 120, 10, 150),
+    }
+
+
+def _auth_headers() -> dict[str, str]:
+    key = _api_key()
+    return {"Authorization": f"Bearer {key}"} if key else {}
+
+
+def _has_locale_path(url: str) -> bool:
+    return bool(re.search(r"/(us|uk|ca|au|jp|eu)/(en|[a-z]{2})/?", url, re.I))
+
+
 def normalize_brand_url(website_url: str) -> str:
     """Strip tracking params and return site root for brand-focused scraping."""
     if not website_url.startswith(("http://", "https://")):
@@ -60,6 +145,78 @@ def normalize_brand_url(website_url: str) -> str:
     if not parsed.netloc:
         return website_url
     return f"{parsed.scheme}://{parsed.netloc}/"
+
+
+def resolve_storefront_url(website_url: str) -> str:
+    """
+    Pick a crawl/extract entry URL. Global roots (e.g. uniqlo.com/) often need
+    a locale path such as /us/en/ before product pages are discoverable.
+    """
+    root = normalize_brand_url(website_url)
+    if _has_locale_path(root):
+        return root
+
+    extract = extract_urls(root, extract_depth="basic")
+    content = "\n".join(
+        (row.get("raw_content") or "") for row in extract.get("results", [])
+    )
+    if not content.strip():
+        return root
+
+    for match in _LOCALE_STOREFRONT.findall(content):
+        url = match.rstrip("/") + "/"
+        if urlparse(url).netloc == urlparse(root).netloc:
+            return url
+
+    rel = re.search(r"/(us|uk|ca|au|jp|eu)/(en|[a-z]{2})/?", content, re.I)
+    if rel:
+        return root.rstrip("/") + "/" + rel.group(0).lstrip("/")
+
+    return root
+
+
+def discover_category_urls(website_url: str, max_urls: int = 10) -> list[str]:
+    """Pull shop/category links from the storefront homepage markdown."""
+    storefront = resolve_storefront_url(website_url)
+    root = normalize_brand_url(website_url)
+    domain = urlparse(root).netloc
+
+    extract = extract_urls(storefront, extract_depth="basic")
+    content = "\n".join(
+        (row.get("raw_content") or "") for row in extract.get("results", [])
+    )
+
+    seen: set[str] = set()
+    urls: list[str] = []
+
+    def _add(url: str) -> None:
+        url = url.split("?")[0].split("#")[0]
+        if domain not in urlparse(url).netloc:
+            return
+        key = url.rstrip("/")
+        if key in seen or len(urls) >= max_urls:
+            return
+        seen.add(key)
+        urls.append(url)
+
+    _add(storefront.rstrip("/") + "/")
+
+    for url in re.findall(r"\]\((https?://[^)]+)\)", content):
+        if re.search(
+            r"/(men|women|kids|baby|feature|special-feature|products|shop|linen|t-shirts|tops|bottoms)/",
+            url,
+            re.I,
+        ):
+            _add(url)
+
+    if len(urls) <= 1:
+        for path in ("/men", "/women", "/kids"):
+            if _has_locale_path(storefront):
+                _add(f"{storefront.rstrip('/')}{path}")
+            else:
+                _add(f"{root.rstrip('/')}{path}")
+
+    return urls[:max_urls]
 
 
 def brand_extract_urls(website_url: str, max_urls: int = 5) -> list[str]:
@@ -135,6 +292,191 @@ def extract_urls(
         }
 
 
+def _page_sort_key(row: dict) -> tuple[int, int]:
+    url = row.get("url") or ""
+    if _PRODUCT_URL_HINT.search(url):
+        priority = 0
+    elif _ABOUT_URL_HINT.search(url):
+        priority = 1
+    else:
+        priority = 2
+    content_len = len((row.get("raw_content") or "").strip())
+    return (priority, -content_len)
+
+
+def crawl_urls(
+    url: str,
+    *,
+    instructions: str | None = None,
+    select_paths: list[str] | None = None,
+    exclude_paths: list[str] | None = None,
+    max_depth: int | None = None,
+    max_breadth: int | None = None,
+    limit: int | None = None,
+    extract_depth: str = "advanced",
+    timeout: int | None = None,
+    allow_external: bool = False,
+) -> dict:
+    """
+    Crawl a site via Tavily Crawl API.
+    See: https://docs.tavily.com/documentation/api-reference/endpoint/crawl
+    """
+    api_key = _api_key()
+    if not api_key:
+        return {"results": [], "failed_results": [], "source": "no_api_key"}
+
+    settings = _crawl_settings()
+    payload: dict = {
+        "url": url,
+        "format": "markdown",
+        "extract_depth": extract_depth,
+        "max_depth": max_depth if max_depth is not None else settings["max_depth"],
+        "max_breadth": max_breadth if max_breadth is not None else settings["max_breadth"],
+        "limit": limit if limit is not None else settings["limit"],
+        "allow_external": allow_external,
+        "timeout": timeout if timeout is not None else settings["timeout"],
+    }
+    if instructions:
+        payload["instructions"] = instructions
+        payload["chunks_per_source"] = 5
+    if select_paths:
+        payload["select_paths"] = select_paths
+    if exclude_paths:
+        payload["exclude_paths"] = exclude_paths
+
+    headers = _auth_headers()
+    if not headers:
+        return {"results": [], "failed_results": [], "source": "no_api_key"}
+
+    try:
+        resp = httpx.post(
+            "https://api.tavily.com/crawl",
+            json=payload,
+            headers=headers,
+            timeout=float(payload["timeout"]) + 15.0,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        data["source"] = "tavily_crawl"
+        return data
+    except Exception as exc:
+        return {
+            "results": [],
+            "failed_results": [{"url": url, "error": str(exc)}],
+            "source": "error",
+        }
+
+
+def _merge_crawl_sections(results: list[dict], max_chars: int = 22000) -> tuple[str, list[str]]:
+    """Combine crawled pages; product/shop URLs first."""
+    ordered = sorted(results, key=_page_sort_key)
+    sections: list[str] = []
+    urls: list[str] = []
+    total = 0
+    for row in ordered:
+        raw = (row.get("raw_content") or "").strip()
+        page_url = (row.get("url") or "").strip()
+        if not raw:
+            continue
+        header = f"## Page: {page_url}\n\n" if page_url else ""
+        block = header + raw
+        if total + len(block) > max_chars:
+            remaining = max_chars - total
+            if remaining < 400:
+                break
+            block = block[:remaining] + "\n\n[truncated]"
+        sections.append(block)
+        if page_url:
+            urls.append(page_url)
+        total += len(block)
+        if total >= max_chars:
+            break
+    return "\n\n---\n\n".join(sections), urls
+
+
+def crawl_brand_website(website_url: str) -> dict:
+    """Crawl advertiser site for product + brand pages (preferred for onboarding)."""
+    root = normalize_brand_url(website_url)
+    entry = resolve_storefront_url(website_url)
+    domain = urlparse(root).netloc or website_url
+    settings = _crawl_settings()
+
+    crawl = crawl_urls(
+        entry,
+        instructions=CRAWL_INSTRUCTIONS,
+        select_paths=None,
+        exclude_paths=CRAWL_EXCLUDE_PATHS,
+        allow_external=False,
+    )
+
+    results = crawl.get("results") or []
+    content, urls_crawled = _merge_crawl_sections(results)
+    quality = _content_quality(content)
+
+    return {
+        "url": root,
+        "domain": domain,
+        "content": content,
+        "extract_meta": {
+            "source": crawl.get("source"),
+            "method": "crawl",
+            "storefront_url": entry,
+            "failed": crawl.get("failed_results", []),
+            "chars": len(content),
+            "pages_crawled": len(urls_crawled),
+            "urls_crawled": urls_crawled[:40],
+            "content_quality": round(quality, 3),
+            "crawl_settings": {
+                "max_depth": settings["max_depth"],
+                "max_breadth": settings["max_breadth"],
+                "limit": settings["limit"],
+            },
+        },
+    }
+
+
+def _extract_brand_website_legacy(website_url: str) -> dict:
+    """Category pages via Extract (fallback when crawl is thin or disabled)."""
+    root = normalize_brand_url(website_url)
+    domain = urlparse(root).netloc or website_url
+    urls = discover_category_urls(website_url)
+
+    extract = extract_urls(
+        urls,
+        query="products collections prices features new arrivals",
+        extract_depth="advanced",
+    )
+
+    sections: list[str] = []
+    scraped_urls: list[str] = []
+    for row in extract.get("results", []):
+        raw = (row.get("raw_content") or "").strip()
+        page_url = (row.get("url") or "").strip()
+        if raw:
+            header = f"## Page: {page_url}\n\n" if page_url else ""
+            sections.append(header + raw)
+            if page_url:
+                scraped_urls.append(page_url)
+
+    content = "\n\n---\n\n".join(sections)
+    quality = _content_quality(content)
+
+    return {
+        "url": root,
+        "domain": domain,
+        "content": content,
+        "extract_meta": {
+            "source": extract.get("source"),
+            "method": "extract",
+            "storefront_url": resolve_storefront_url(website_url),
+            "failed": extract.get("failed_results", []),
+            "chars": len(content),
+            "urls_scraped": scraped_urls or urls,
+            "content_quality": round(quality, 3),
+        },
+    }
+
+
 def _search_brand_context(domain: str, brand_hint: str = "") -> str:
     """Site-scoped search for mission/products when extract is thin or noisy."""
     hint = brand_hint or domain.replace("www.", "").split(".")[0]
@@ -153,39 +495,74 @@ def _search_brand_context(domain: str, brand_hint: str = "") -> str:
 
 
 def extract_brand_website(website_url: str) -> dict:
-    """Scrape advertiser site: normalized root + about pages + search enrichment."""
+    """
+    Scrape advertiser site for onboarding.
+
+    Prefers Tavily Crawl (product/shop/about pages). Falls back to Extract on
+    homepage + about paths when crawl is disabled, fails, or returns thin content.
+    """
     root = normalize_brand_url(website_url)
     domain = urlparse(root).netloc or website_url
-    urls = brand_extract_urls(website_url)
 
-    extract = extract_urls(urls, query=BRAND_QUERY, extract_depth="advanced")
+    scraped: dict | None = None
+    if _crawl_enabled():
+        try:
+            scraped = crawl_brand_website(website_url)
+        except Exception:
+            scraped = None
 
-    sections: list[str] = []
-    for row in extract.get("results", []):
-        raw = (row.get("raw_content") or "").strip()
-        if raw:
-            sections.append(raw)
+    meta = (scraped or {}).get("extract_meta") or {}
+    content = (scraped or {}).get("content") or ""
+    quality = meta.get("content_quality", _content_quality(content))
+    pages = meta.get("pages_crawled", 0)
 
-    content = "\n\n---\n\n".join(sections)
-    quality = _content_quality(content)
+    if not scraped or pages == 0 or len(content) < 400 or quality < 0.35:
+        legacy = _extract_brand_website_legacy(website_url)
+        legacy_content = legacy["content"]
+        legacy_meta = legacy["extract_meta"]
+
+        if content.strip() and legacy_content.strip():
+            content = f"{content}\n\n---\n\n{legacy_content}"
+            method = "crawl+extract"
+        elif legacy_content.strip():
+            content = legacy_content
+            method = "extract"
+        else:
+            method = meta.get("method", "crawl")
+
+        quality = _content_quality(content)
+        scraped = {
+            "url": root,
+            "domain": domain,
+            "content": content,
+            "extract_meta": {
+                **legacy_meta,
+                "method": method,
+                "crawl_pages": pages,
+                "crawl_urls": meta.get("urls_crawled", []),
+                "crawl_failed": meta.get("failed", []),
+                "crawl_settings": meta.get("crawl_settings"),
+                "content_quality": round(quality, 3),
+                "chars": len(content),
+            },
+        }
+    else:
+        scraped["extract_meta"]["method"] = "crawl"
+
+    content = scraped["content"]
+    quality = scraped["extract_meta"].get("content_quality", _content_quality(content))
 
     if len(content) < 400 or quality < 0.45:
         search_blob = _search_brand_context(domain)
         if search_blob:
             content = f"## Market / brand search context\n{search_blob}\n\n{content}".strip()
+            scraped["content"] = content
+            scraped["extract_meta"]["chars"] = len(content)
+            scraped["extract_meta"]["search_enriched"] = True
 
-    return {
-        "url": root,
-        "domain": domain,
-        "content": content[:14000],
-        "extract_meta": {
-            "source": extract.get("source"),
-            "failed": extract.get("failed_results", []),
-            "chars": len(content),
-            "urls_scraped": urls,
-            "content_quality": round(quality, 3),
-        },
-    }
+    scraped["content"] = content[:22000]
+    scraped["extract_meta"]["chars"] = len(scraped["content"])
+    return scraped
 
 
 @lru_cache(maxsize=128)

@@ -9,6 +9,11 @@ from urllib.parse import urlparse
 from agent.brand_store import save_brand
 from agent.tavily_client import extract_brand_website, normalize_brand_url
 
+_PRODUCT_PAGE = re.compile(
+    r"/products?/|/shop/|/collections?/|/catalog/|/store/|/p/|/item/",
+    re.I,
+)
+
 TONE_KEYWORDS = {
     "empathy": ["care", "support", "help", "comfort", "wellness", "feel", "relief"],
     "urgency": ["limited", "sale", "today", "now", "deal", "offer", "save"],
@@ -125,23 +130,52 @@ def _looks_like_product_heading(text: str, following_lines: list[str]) -> bool:
 
 
 def _extract_product_candidates(content: str) -> list[str]:
-    lines = content.splitlines()
-    products = []
+    """Pull product names from headings; prefer crawled product/shop pages."""
+    sections: list[tuple[str, str]] = []
+    current_url = ""
+    current_lines: list[str] = []
+
+    for line in content.splitlines():
+        if line.startswith("## Page:"):
+            if current_lines or current_url:
+                sections.append((current_url, "\n".join(current_lines)))
+            current_url = line.replace("## Page:", "").strip()
+            current_lines = []
+            continue
+        current_lines.append(line)
+    if current_lines or current_url:
+        sections.append((current_url, "\n".join(current_lines)))
+
+    if not sections:
+        sections = [("", content)]
+
+    sections.sort(
+        key=lambda s: (
+            0 if _PRODUCT_PAGE.search(s[0]) else 1,
+            -len(s[1]),
+        )
+    )
+
+    products: list[str] = []
     seen: set[str] = set()
-    for i, line in enumerate(lines):
-        m = _HEADING.match(line.strip())
-        if not m:
-            continue
-        text = _clean_heading(m.group(2))
-        if not _is_usable_heading(text):
-            continue
-        following = [ln.strip() for ln in lines[i + 1 : i + 4] if ln.strip()]
-        if not _looks_like_product_heading(text, following):
-            continue
-        key = text.lower()
-        if key not in seen:
-            seen.add(key)
-            products.append(text)
+    for _url, block in sections:
+        lines = block.splitlines()
+        for i, line in enumerate(lines):
+            m = _HEADING.match(line.strip())
+            if not m:
+                continue
+            text = _clean_heading(m.group(2))
+            if not _is_usable_heading(text):
+                continue
+            following = [ln.strip() for ln in lines[i + 1 : i + 4] if ln.strip()]
+            if not _looks_like_product_heading(text, following):
+                continue
+            key = text.lower()
+            if key not in seen:
+                seen.add(key)
+                products.append(text)
+        if len(products) >= 6:
+            break
     return products[:6]
 
 
@@ -240,13 +274,14 @@ def _structure_with_llm(content: str, brand_name: str, website_url: str) -> dict
     prompt = (
         f"Website: {website_url}\n"
         f"Likely brand: {brand_name}\n\n"
-        "From the markdown below, extract ONLY facts present in the text. "
+        "From the markdown below (may include multiple crawled product/shop pages), "
+        "extract ONLY facts present in the text. "
         "Return a single JSON object with keys:\n"
         "name (string), summary (1-2 sentences), value_props (string array, 3-6 items), "
         "keywords (string array, 8-12 product/brand terms), voice (warm|bold|professional), "
-        "products (array of {name, description} max 5).\n"
+        "products (array of {name, description} max 5 — real product names from shop pages).\n"
         "Ignore nav menus, image labels, duplicate headings, and cookie banners.\n\n"
-        f"MARKDOWN:\n{content[:9000]}"
+        f"MARKDOWN:\n{content[:12000]}"
     )
     try:
         resp = client.chat.completions.create(
