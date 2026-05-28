@@ -6,8 +6,8 @@ This branch drops **TribeV2** and uses **sentence-transformers** for semantic au
 
 | Setting | Value |
 |---------|--------|
-| **Root Directory** | *(leave empty — repo root)* |
-| **Framework Preset** | **Other** |
+| **Root Directory** | *(leave empty — repo root; must contain `vercel.json`)* |
+| **Framework Preset** | **Services** |
 | **Build Command** | *(empty — Vercel installs from `requirements.txt` at repo root)* |
 | **Output Directory** | *(empty)* |
 
