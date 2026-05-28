@@ -8,7 +8,7 @@ This branch drops **TribeV2** and uses **sentence-transformers** for semantic au
 |---------|--------|
 | **Root Directory** | *(leave empty — repo root)* |
 | **Framework Preset** | **Other** |
-| **Build Command** | *(empty — `installCommand` in vercel.json handles pip)* |
+| **Build Command** | *(empty — Vercel installs from `requirements.txt` at repo root)* |
 | **Output Directory** | *(empty)* |
 
 All traffic is rewritten to `api/index.py`, which runs the FastAPI app and serves the frontend from `frontend/`.
