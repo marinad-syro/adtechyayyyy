@@ -30,7 +30,12 @@ async function checkHealth() {
     const emb = h.embeddings;
     const embEl = document.getElementById('embedStatus');
     if (embEl && emb) {
-      embEl.textContent = emb.ready ? 'Embeddings: ready' : emb.loading ? 'Embeddings: loading…' : 'Embeddings: keyword fallback';
+      const label = emb.mode === 'keyword' ? 'Keywords' : 'Embeddings';
+      embEl.textContent = emb.ready
+        ? `${label}: ready`
+        : emb.loading
+          ? `${label}: loading…`
+          : `${label}: keyword fallback`;
     }
   } catch {
     setTimeout(checkHealth, 5000);

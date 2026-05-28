@@ -1,6 +1,6 @@
 # Deploy on Vercel (`vercel-demo` branch)
 
-This branch drops **TribeV2** and uses **sentence-transformers** for semantic auction + embedding-based emotional fit. It fits Vercel serverless (no multi-GB model download).
+This branch drops **TribeV2** and uses **keyword matching on Vercel** (no PyTorch) plus optional **sentence-transformers** for local dev only. Fits Vercel’s 500 MB Lambda limit.
 
 ## Vercel project settings
 
@@ -45,7 +45,9 @@ vercel --prod
 
 ## Notes
 
-- **First request** may be slow while `all-MiniLM-L6-v2` downloads (~90MB). Later requests are fast.
+- **Vercel deploy** uses keyword relevance + hash-based emotional fit (no ML deps). Bundle stays under 500 MB.
+- **Local dev** can optionally `pip install sentence-transformers numpy` for semantic ranking.
+- **First request** on Vercel should be fast (no model download).
 - **SQLite outcomes** live in `/tmp` on Vercel and reset on cold starts — fine for demos.
 - **maxDuration** is set to 60s in `vercel.json` (Pro). Hobby plan caps at 10s — upgrade or trim `include_llm` if previews timeout.
 - Full TribeV2 stack remains on the `brain-model` branch for local use.

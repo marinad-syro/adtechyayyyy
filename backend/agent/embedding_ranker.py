@@ -1,13 +1,23 @@
 """Semantic ad ranking via sentence-transformers (from ContextBid / main branch)."""
 
+import os
 import threading
 
-import numpy as np
-
-EMBED_MODEL = None
 USE_EMBEDDINGS = False
+EMBED_MODEL = None
 _model_loading = False
 _model_error: str | None = None
+_VERCEL = bool(os.environ.get("VERCEL"))
+
+if not _VERCEL:
+    import numpy as np
+
+    _product_embeddings: dict[str, np.ndarray] = {}
+    _legacy_embeddings: dict[str, np.ndarray] = {}
+else:
+    np = None  # type: ignore
+    _product_embeddings = {}
+    _legacy_embeddings = {}
 
 # Legacy advertisers from main — used when catalog is empty or as extra bidders
 LEGACY_ADVERTISERS = [
@@ -89,13 +99,10 @@ CATEGORY_LOGOS = {
     "Security": "🔒",
 }
 
-_product_embeddings: dict[str, np.ndarray] = {}
-_legacy_embeddings: dict[str, np.ndarray] = {}
-
 
 def _load_embed_model():
     global EMBED_MODEL, USE_EMBEDDINGS, _model_loading, _model_error
-    if EMBED_MODEL is not None or _model_error:
+    if _VERCEL or EMBED_MODEL is not None or _model_error:
         return
     _model_loading = True
     try:
@@ -110,7 +117,18 @@ def _load_embed_model():
         _model_loading = False
 
 
-threading.Thread(target=_load_embed_model, daemon=True).start()
+if not _VERCEL:
+    threading.Thread(target=_load_embed_model, daemon=True).start()
+
+
+def embedding_status() -> dict:
+    if _VERCEL:
+        return {"ready": False, "loading": False, "error": None, "mode": "keyword"}
+    return {
+        "ready": USE_EMBEDDINGS,
+        "loading": _model_loading,
+        "error": _model_error,
+    }
 
 
 def _product_target_context(product: dict) -> str:
@@ -159,14 +177,6 @@ def _refresh_embeddings():
         _product_embeddings[b["id"]] = vec
 
 
-def embedding_status() -> dict:
-    return {
-        "ready": USE_EMBEDDINGS,
-        "loading": _model_loading,
-        "error": _model_error,
-    }
-
-
 def compute_relevance(context: str, bidder: dict) -> float:
     """Return 0.0–1.0 relevance between user context and advertiser target."""
     if USE_EMBEDDINGS and EMBED_MODEL is not None:
@@ -198,7 +208,11 @@ def rank_products_semantic(user_text: str, top_k: int = 5) -> list[dict]:
             "product_name": b["name"],
             "category": b.get("category", "general"),
             "intent_score": round(rel, 4),
-            "rationale": f"semantic relevance: {rel * 100:.1f}%",
+            "rationale": (
+                f"keyword relevance: {rel * 100:.1f}%"
+                if _VERCEL
+                else f"semantic relevance: {rel * 100:.1f}%"
+            ),
             "relevance_score": round(rel, 6),
             "max_cpm": b.get("max_cpm"),
         })

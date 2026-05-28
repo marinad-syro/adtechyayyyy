@@ -1,8 +1,16 @@
 backend/model_cache/
 backend/.env
+backend/**/*.db
+backend/brain_regions.py
 .env
 *.env
 .venv/
 venv/
+env/
 __pycache__/
+**/__pycache__/
 .git/
+docs/
+LEARN.md
+setup.sh
+start.sh

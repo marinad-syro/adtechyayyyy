@@ -1,12 +1,12 @@
-"""Lightweight emotional fit from sentence embeddings (Vercel-friendly, no TribeV2)."""
+"""Lightweight emotional fit — hash-based on Vercel, embeddings optional locally."""
 
 import hashlib
 import math
+import os
 from functools import lru_cache
 
-import numpy as np
-
 EMOTION_KEYS = ("acc", "insula", "ofc", "pcc")
+_VERCEL = bool(os.environ.get("VERCEL"))
 
 
 def _sigmoid(x: float) -> float:
@@ -19,15 +19,9 @@ def _hash_fallback(text: str) -> dict[str, float]:
     return {key: digest[i] / 255.0 for i, key in enumerate(EMOTION_KEYS)}
 
 
-def _vector_to_regions(vec: np.ndarray) -> dict[str, float]:
-    chunks = np.array_split(vec, len(EMOTION_KEYS))
-    return {
-        key: round(_sigmoid(float(chunk.mean()) * 4.0), 4)
-        for key, chunk in zip(EMOTION_KEYS, chunks)
-    }
-
-
-def _encode(text: str) -> np.ndarray | None:
+def _encode(text: str):
+    if _VERCEL:
+        return None
     from agent.embedding_ranker import EMBED_MODEL, USE_EMBEDDINGS, _load_embed_model
 
     if not USE_EMBEDDINGS and EMBED_MODEL is None:
@@ -37,6 +31,16 @@ def _encode(text: str) -> np.ndarray | None:
     return EMBED_MODEL.encode(text.strip())
 
 
+def _vector_to_regions(vec) -> dict[str, float]:
+    import numpy as np
+
+    chunks = np.array_split(vec, len(EMOTION_KEYS))
+    return {
+        key: round(_sigmoid(float(chunk.mean()) * 4.0), 4)
+        for key, chunk in zip(EMOTION_KEYS, chunks)
+    }
+
+
 @lru_cache(maxsize=256)
 def get_activations(text: str) -> dict:
     text = text.strip()
@@ -44,11 +48,7 @@ def get_activations(text: str) -> dict:
         raise ValueError("Text must be at least 10 characters")
 
     vec = _encode(text)
-    if vec is not None:
-        activations = _vector_to_regions(vec)
-    else:
-        activations = _hash_fallback(text)
-
+    activations = _vector_to_regions(vec) if vec is not None else _hash_fallback(text)
     return {"activations": activations, **activations}
 
 
@@ -60,6 +60,7 @@ def score_fit(user_text: str, ad_copy: str) -> dict:
     ad_act = get_activations(ad_copy)
     intent = extract_intent(user_text)
     fit = compute_tribe_fit(user_act, ad_act, intent=intent)
+    mode = "keyword" if _VERCEL else "embedding"
 
     return {
         "activations": {
@@ -70,7 +71,7 @@ def score_fit(user_text: str, ad_copy: str) -> dict:
         "fit_detail": fit,
         "user_profile": emotion_profile(user_act),
         "ad_profile": emotion_profile(ad_act),
-        "mode": "embedding",
+        "mode": mode,
     }
 
 
@@ -96,5 +97,5 @@ def predict_regions(text: str) -> dict:
             }
             for rid, score in top
         ],
-        "mode": "embedding",
+        "mode": "keyword" if _VERCEL else "embedding",
     }

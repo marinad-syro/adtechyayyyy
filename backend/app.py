@@ -103,7 +103,7 @@ def health():
         "ready": True,
         "loading": emb.get("loading", False),
         "error": emb.get("error"),
-        "mode": DEMO_MODE,
+        "mode": "keyword" if os.environ.get("VERCEL") else DEMO_MODE,
         "tribe_available": True,
         "embeddings": emb,
     }

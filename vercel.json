@@ -6,7 +6,18 @@
       "routePrefix": "/",
       "framework": "fastapi",
       "maxDuration": 60,
-      "includeFiles": ["frontend/**", "backend/**"]
+      "includeFiles": [
+        "frontend/**",
+        "backend/agent/**",
+        "backend/data/*.json"
+      ],
+      "excludeFiles": [
+        "backend/model_cache/**",
+        "backend/**/*.db",
+        "backend/brain_regions.py",
+        "**/__pycache__/**",
+        "**/.venv/**"
+      ]
     }
   }
 }
