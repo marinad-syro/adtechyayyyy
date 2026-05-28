@@ -1,0 +1,7 @@
+fastapi>=0.100
+uvicorn[standard]>=0.23
+python-multipart
+mne>=1.6
+numpy<2
+mutagen
+python-dotenv

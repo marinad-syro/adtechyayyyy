@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BrainText — Neural Response Visualizer</title>
+<style>
+  :root {
+    --bg: #06060f;
+    --surface: #0d0d1f;
+    --border: #1e1e3f;
+    --text: #c8c8e8;
+    --muted: #5a5a80;
+    --accent: #7c6bff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  header {
+    text-align: center;
+    padding: 42px 20px 28px;
+  }
+
+  header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #a89fff 0%, #ffffff 55%, #ffd866 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  header p {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 0.95rem;
+    letter-spacing: 0.01em;
+  }
+
+  main {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 28px;
+    width: 100%;
+    max-width: 1060px;
+    padding: 0 28px 60px;
+    align-items: start;
+  }
+
+  /* ─── Left panel ──────────────────────────────── */
+  .input-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: sticky;
+    top: 28px;
+  }
+
+  .input-panel label {
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  textarea {
+    width: 100%;
+    height: 200px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    padding: 16px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--muted); }
+
+  .btn {
+    background: linear-gradient(135deg, #5b4bff, #8b6bff);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    padding: 14px 22px;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+
+  .btn:hover { opacity: 0.9; }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+  .status-bar {
+    min-height: 22px;
+    font-size: 0.83rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .status-bar.error { color: #ff6b6b; }
+  .status-bar.ok { color: #6bffb8; }
+
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .examples-label {
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .examples {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .example-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.82rem;
+    padding: 9px 13px;
+    text-align: left;
+    transition: border-color 0.2s, color 0.2s;
+    line-height: 1.4;
+  }
+
+  .example-chip:hover { border-color: var(--accent); color: var(--text); }
+
+  /* ─── Right panel ─────────────────────────────── */
+  .results-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* ─── Section header ──────────────────────────── */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .section-title {
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .section-badge {
+    font-size: 0.7rem;
+    background: #1a1a35;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--muted);
+    padding: 2px 8px;
+  }
+
+  /* ─── Emotion bar chart ───────────────────────── */
+  .emotion-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .ebar-row {
+    display: grid;
+    grid-template-columns: 200px 1fr 52px;
+    align-items: center;
+    gap: 16px;
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  .ebar-row.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .ebar-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .ebar-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .ebar-desc {
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.35;
+  }
+
+  .ebar-track {
+    background: #0e0e25;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    height: 24px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .ebar-fill {
+    height: 100%;
+    border-radius: 5px;
+    width: 0%;
+    transition: width 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+    position: relative;
+  }
+
+  .ebar-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 100%);
+    border-radius: inherit;
+  }
+
+  .ebar-pct {
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    text-align: right;
+  }
+
+  /* ─── All-regions table ───────────────────────── */
+  .all-regions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  .all-regions-table th {
+    text-align: left;
+    font-size: 0.7rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 10px 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-weight: 500;
+  }
+
+  .all-regions-table th:last-child { text-align: right; padding-right: 0; }
+
+  .all-regions-table td {
+    padding: 10px 10px 10px 0;
+    border-bottom: 1px solid #11112a;
+    vertical-align: middle;
+  }
+
+  .all-regions-table td:last-child { text-align: right; padding-right: 0; }
+
+  .tbl-name {
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .tbl-desc {
+    color: var(--muted);
+    font-size: 0.75rem;
+    padding-top: 2px;
+  }
+
+  .tbl-mini-wrap {
+    background: #0e0e25;
+    border-radius: 3px;
+    height: 6px;
+    width: 120px;
+    overflow: hidden;
+  }
+
+  .tbl-mini-bar {
+    height: 100%;
+    border-radius: 3px;
+    width: 0%;
+    transition: width 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .tbl-pct {
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    font-weight: 600;
+    white-space: nowrap;
+    min-width: 44px;
+    display: inline-block;
+  }
+
+  /* ─── Placeholder ─────────────────────────────── */
+  .placeholder-msg {
+    text-align: center;
+    padding: 60px 0;
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+
+  .placeholder-msg strong {
+    display: block;
+    color: #3a3a60;
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    font-weight: 300;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>BrainText</h1>
+  <p>Emotional &amp; affective brain response to text</p>
+</header>
+
+<main>
+  <!-- LEFT: input -->
+  <div class="input-panel">
+    <label for="text-input">Text to analyze</label>
+    <textarea id="text-input" placeholder="Paste any text — an ad, headline, story excerpt, or message…"></textarea>
+    <button class="btn" id="analyze-btn">Analyze brain response →</button>
+    <div class="status-bar" id="status-bar"></div>
+
+    <div class="examples-label">Try an example</div>
+    <div class="examples" id="examples"></div>
+  </div>
+
+  <!-- RIGHT: results -->
+  <div class="results-panel" id="results-panel">
+    <div class="placeholder-msg" id="placeholder">
+      <strong>◌</strong>
+      Enter text and click Analyze<br>to see emotional brain activation
+    </div>
+  </div>
+</main>
+
+<script>
+const EMOTION_REGIONS = [
+  {
+    id: "acc",
+    name: "Anterior Cingulate Cortex",
+    shortName: "ACC",
+    desc: "Emotional salience, attention, conflict — lights up for surprising or resonant content",
+  },
+  {
+    id: "insula",
+    name: "Insula",
+    shortName: "Insula",
+    desc: "Bodily emotional response, gut-feeling, disgust & pleasure",
+  },
+  {
+    id: "ofc",
+    name: "Orbitofrontal Cortex",
+    shortName: "OFC",
+    desc: "Reward valuation, price perception, brand preference",
+  },
+  {
+    id: "pcc",
+    name: "Posterior Cingulate Cortex",
+    shortName: "PCC",
+    desc: "Self-referential thinking, autobiographical memory",
+  },
+];
+
+const OTHER_REGION_LABELS = {
+  prefrontal:    "Prefrontal Cortex",
+  brocas:        "Broca's Area",
+  motor:         "Motor Cortex",
+  somatosensory: "Somatosensory Cortex",
+  parietal:      "Parietal Cortex",
+  occipital:     "Visual Cortex",
+  auditory:      "Auditory Cortex",
+  wernickes:     "Wernicke's Area",
+  temporal:      "Temporal Lobe",
+};
+
+const EXAMPLES = [
+  "Buy now — limited time offer! This weekend only, save up to 60% on everything.",
+  "Scientists have discovered a new species of deep-sea fish with bioluminescent patterns that may communicate using light pulses.",
+  "She stood at the edge of the cliff, the wind howling, the city lights shimmering far below.",
+  "Your subscription renews automatically. Cancel anytime. No questions asked.",
+];
+
+function activationColor(t) {
+  const stops = [
+    [0.00, [14,  14,  40]],
+    [0.25, [30,  20,  90]],
+    [0.50, [110, 40, 200]],
+    [0.75, [210, 90,  20]],
+    [1.00, [255,208,  0]],
+  ];
+  for (let i = 0; i < stops.length - 1; i++) {
+    const [t0, c0] = stops[i];
+    const [t1, c1] = stops[i + 1];
+    if (t >= t0 && t <= t1) {
+      const s = (t - t0) / (t1 - t0);
+      const r = c0 => Math.round(c0[i] + s * (c1[i] - c0[i]));
+      return `rgb(${lerp(c0,c1,s,0)},${lerp(c0,c1,s,1)},${lerp(c0,c1,s,2)})`;
+    }
+  }
+  return "rgb(255,208,0)";
+}
+
+function lerp(c0, c1, s, i) {
+  return Math.round(c0[i] + s * (c1[i] - c0[i]));
+}
+
+const $ = id => document.getElementById(id);
+
+function setStatus(msg, cls = "") {
+  const bar = $("status-bar");
+  bar.className = "status-bar " + cls;
+  bar.innerHTML = msg;
+}
+
+function setLoading(on) {
+  $("analyze-btn").disabled = on;
+  if (on) {
+    setStatus('<div class="spinner"></div> Analyzing… (~30–60 s)', "");
+  } else {
+    setStatus("");
+  }
+}
+
+function applyActivations(data) {
+  const { activations } = data;
+  const panel = $("results-panel");
+
+  panel.innerHTML = `
+    <div>
+      <div class="section-header">
+        <span class="section-title">Emotion &amp; Affect</span>
+        <span class="section-badge">4 regions</span>
+      </div>
+      <div class="emotion-bars" id="emotion-bars"></div>
+    </div>
+    <div>
+      <div class="section-header">
+        <span class="section-title">All Regions</span>
+        <span class="section-badge">${Object.keys(activations).length} total</span>
+      </div>
+      <table class="all-regions-table">
+        <thead>
+          <tr>
+            <th>Region</th>
+            <th>Activation</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="all-regions-tbody"></tbody>
+      </table>
+    </div>
+  `;
+
+  // ── Emotion bar chart ─────────────────────────
+  const ebars = $("emotion-bars");
+  EMOTION_REGIONS.forEach((r, i) => {
+    const t = activations[r.id] ?? 0;
+    const pct = (t * 100).toFixed(1);
+    const color = activationColor(t);
+
+    const row = document.createElement("div");
+    row.className = "ebar-row";
+    row.innerHTML = `
+      <div class="ebar-meta">
+        <div class="ebar-name">${r.name}</div>
+        <div class="ebar-desc">${r.desc}</div>
+      </div>
+      <div class="ebar-track">
+        <div class="ebar-fill" id="ef-${r.id}" style="background-color:${color}; width:0%"></div>
+      </div>
+      <div class="ebar-pct" id="ep-${r.id}">0%</div>
+    `;
+    ebars.appendChild(row);
+
+    // staggered entrance
+    setTimeout(() => {
+      row.classList.add("visible");
+      setTimeout(() => {
+        $("ef-" + r.id).style.width = pct + "%";
+        $("ep-" + r.id).textContent = pct + "%";
+      }, 80);
+    }, i * 90);
+  });
+
+  // ── All-regions table (sorted by activation desc) ──
+  const tbody = $("all-regions-tbody");
+  const allSorted = Object.entries(activations)
+    .sort((a, b) => b[1] - a[1]);
+
+  allSorted.forEach(([id, t]) => {
+    const name = OTHER_REGION_LABELS[id] ?? EMOTION_REGIONS.find(r => r.id === id)?.name ?? id;
+    const isEmotion = EMOTION_REGIONS.some(r => r.id === id);
+    const pct = (t * 100).toFixed(1);
+    const color = activationColor(t);
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>
+        <div class="tbl-name">${name}${isEmotion ? ' <span style="font-size:0.65rem;color:#6b5fff;font-weight:500;vertical-align:middle;"> EMO</span>' : ''}</div>
+      </td>
+      <td>
+        <div class="tbl-mini-wrap">
+          <div class="tbl-mini-bar" id="tb-${id}" style="background-color:${color}"></div>
+        </div>
+      </td>
+      <td><span class="tbl-pct">${pct}%</span></td>
+    `;
+    tbody.appendChild(tr);
+
+    setTimeout(() => {
+      const bar = $("tb-" + id);
+      if (bar) bar.style.width = pct + "%";
+    }, 300);
+  });
+}
+
+async function analyze() {
+  const text = $("text-input").value.trim();
+  if (text.length < 10) {
+    setStatus("Please enter at least 10 characters.", "error");
+    return;
+  }
+  setLoading(true);
+  try {
+    const res = await fetch("/api/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(err.detail ?? res.statusText);
+    }
+    const data = await res.json();
+    applyActivations(data);
+    setStatus("Done", "ok");
+  } catch (err) {
+    setStatus("Error: " + err.message, "error");
+  } finally {
+    setLoading(false);
+  }
+}
+
+$("analyze-btn").addEventListener("click", analyze);
+$("text-input").addEventListener("keydown", e => {
+  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) analyze();
+});
+
+const examplesEl = $("examples");
+EXAMPLES.forEach(ex => {
+  const btn = document.createElement("button");
+  btn.className = "example-chip";
+  btn.textContent = ex.length > 80 ? ex.slice(0, 78) + "…" : ex;
+  btn.title = ex;
+  btn.addEventListener("click", () => {
+    $("text-input").value = ex;
+    analyze();
+  });
+  examplesEl.appendChild(btn);
+});
+
+async function checkHealth() {
+  try {
+    const res = await fetch("/api/health");
+    const { ready, loading, error } = await res.json();
+    if (error) {
+      setStatus("Model load error: " + error, "error");
+    } else if (loading) {
+      setStatus('<div class="spinner"></div> Loading TribeV2 model…', "");
+      $("analyze-btn").disabled = true;
+      setTimeout(checkHealth, 4000);
+    } else if (ready) {
+      setStatus("Model ready — enter text and analyze", "ok");
+      $("analyze-btn").disabled = false;
+    }
+  } catch {
+    setTimeout(checkHealth, 5000);
+  }
+}
+
+checkHealth();
+</script>
+</body>
+</html>
