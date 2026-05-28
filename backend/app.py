@@ -15,8 +15,22 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
 DEMO_MODE = os.environ.get("DEMO_MODE", "embedding")
+
+
+def _resolve_frontend_dir() -> Path | None:
+    here = Path(__file__).resolve().parent
+    for candidate in (
+        here.parent / "frontend",
+        Path.cwd() / "frontend",
+        here / "frontend",
+    ):
+        if candidate.is_dir():
+            return candidate
+    return None
+
+
+FRONTEND_DIR = _resolve_frontend_dir()
 
 app = FastAPI(title="BrainText Buy-Side Agent API (Vercel demo)")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -24,9 +38,12 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 @app.on_event("startup")
 def startup():
-    from agent.outcomes import init_db
+    try:
+        from agent.outcomes import init_db
 
-    init_db()
+        init_db()
+    except Exception as exc:
+        print(f"init_db failed: {exc}", flush=True)
 
 
 class TextRequest(BaseModel):
@@ -293,21 +310,29 @@ def api_policies():
 
 @app.get("/")
 async def root_page():
+    if not FRONTEND_DIR:
+        raise HTTPException(500, "Frontend bundle missing on server")
     return FileResponse(FRONTEND_DIR / "app.html")
 
 
 @app.get("/legacy/contextbid")
 async def legacy_contextbid():
+    if not FRONTEND_DIR:
+        raise HTTPException(500, "Frontend bundle missing on server")
     return FileResponse(FRONTEND_DIR / "legacy" / "contextbid.html")
 
 
 @app.get("/legacy/brain")
 async def legacy_brain():
+    if not FRONTEND_DIR:
+        raise HTTPException(500, "Frontend bundle missing on server")
     return FileResponse(FRONTEND_DIR / "legacy" / "brain.html")
 
 
 @app.get("/brain")
 async def brain_page():
+    if not FRONTEND_DIR:
+        raise HTTPException(500, "Frontend bundle missing on server")
     return FileResponse(FRONTEND_DIR / "legacy" / "brain.html")
 
 
@@ -478,4 +503,5 @@ def api_deactivate_brand():
     return {"ok": True, "active_brand_id": None}
 
 
-app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
+if FRONTEND_DIR:
+    app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
