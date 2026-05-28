@@ -172,7 +172,7 @@ async function sendConsumerMessage() {
       }
     } else {
       document.getElementById('brainPanel').innerHTML =
-        '<div class="empty-state">TribeV2 unavailable or text too short</div>';
+        '<div class="empty-state">Emotional fit unavailable or text too short</div>';
     }
 
     if (data.dashboard_snapshot) {

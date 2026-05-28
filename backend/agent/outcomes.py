@@ -1,5 +1,6 @@
 """Outcome logging, bandit weights, pause rules, HITL escalation."""
 
+import os
 import sqlite3
 import uuid
 from datetime import datetime, timezone
@@ -7,7 +8,10 @@ from pathlib import Path
 
 from agent.catalog import load_policies
 
-DB_PATH = Path(__file__).parent.parent / "data" / "outcomes.db"
+_default_db = Path(__file__).parent.parent / "data" / "outcomes.db"
+DB_PATH = Path(os.environ.get("OUTCOMES_DB_PATH", _default_db))
+if os.environ.get("VERCEL"):
+    DB_PATH = Path("/tmp/outcomes.db")
 
 _escalation_queue: list[dict] = []
 _spend_today: float = 0.0

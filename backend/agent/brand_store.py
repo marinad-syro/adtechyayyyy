@@ -1,11 +1,18 @@
 """Persist advertiser brand profiles and ad plans."""
 
 import json
+import os
+import shutil
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-BRANDS_PATH = Path(__file__).parent.parent / "data" / "brands.json"
+_default = Path(__file__).parent.parent / "data" / "brands.json"
+BRANDS_PATH = Path(os.environ.get("BRANDS_PATH", _default))
+if os.environ.get("VERCEL"):
+    BRANDS_PATH = Path("/tmp/brands.json")
+    if not BRANDS_PATH.exists() and _default.exists():
+        shutil.copy(_default, BRANDS_PATH)
 
 _active_brand_id: str | None = None
 

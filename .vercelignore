@@ -1,0 +1,8 @@
+backend/model_cache/
+backend/.env
+.env
+*.env
+.venv/
+venv/
+__pycache__/
+.git/

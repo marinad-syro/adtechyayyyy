@@ -20,12 +20,12 @@ async function checkHealth() {
     const h = await getHealth();
     const status = document.getElementById('tribeStatus');
     if (!status) return;
-    if (h.error) status.textContent = 'Tribe: error';
+    const mode = h.mode === 'embedding' ? 'Emotional fit' : 'Tribe';
+    if (h.ready) status.textContent = `${mode}: ready`;
     else if (h.loading) {
-      status.textContent = 'Tribe: loading…';
+      status.textContent = `${mode}: loading…`;
       setTimeout(checkHealth, 4000);
-    } else if (h.ready) status.textContent = 'Tribe: ready';
-    else status.textContent = 'Tribe: offline';
+    } else status.textContent = `${mode}: offline`;
 
     const emb = h.embeddings;
     const embEl = document.getElementById('embedStatus');
