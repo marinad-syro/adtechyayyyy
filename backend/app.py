@@ -109,9 +109,13 @@ class PlacementPreviewRequest(BaseModel):
     user_text: str
     brand_id: str | None = None
     session_id: str | None = None
-    skip_hitl: bool = True
+    skip_hitl: bool = False
     include_llm: bool = True
     conversation_history: list[dict] = []
+
+
+class AuctionLiveRequest(BaseModel):
+    user_text: str
 
 
 class AdvertiserAgentRequest(BaseModel):
@@ -251,7 +255,9 @@ def _advertiser_advisor_reply(message: str, context: dict) -> str:
                     "You are a buy-side advertising advisor for an AI chat placement platform. "
                     "Explain decisions using ONLY the JSON context provided—never invent metrics. "
                     "Focus on conversion (p_cvr, EV), emotional fit, and when to no-bid. "
-                    "Be concise (3-5 sentences)."
+                    "When hitl or escalation_queue items are present, tell the advertiser a human "
+                    "must approve before spending continues (budget caps, zero-conversion creatives, "
+                    "new creatives). Be concise (3-5 sentences)."
                 ),
             },
             {
@@ -363,6 +369,18 @@ def api_auctions():
     from agent.auction import get_auction_history
 
     return get_auction_history()
+
+
+@app.post("/api/auction/live")
+async def api_auction_live(req: AuctionLiveRequest):
+    """Run a live second-price auction with your catalog + competitor brands."""
+    from agent.auction import run_live_auction
+
+    user_text = req.user_text.strip()
+    if len(user_text) < 3:
+        raise HTTPException(422, "user_text too short")
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(None, lambda: run_live_auction(user_text))
 
 
 @app.get("/api/stats")

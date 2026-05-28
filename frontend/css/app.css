@@ -386,6 +386,73 @@ textarea { resize: vertical; min-height: 52px; }
 
 .escalation-actions { display: flex; gap: 6px; }
 
+.budget-row { margin-bottom: 12px; }
+.budget-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text2);
+  margin-bottom: 4px;
+}
+.budget-track {
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.budget-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+.budget-fill.warn { background: var(--amber); }
+
+.hitl-alert {
+  padding: 10px;
+  background: #fffbeb;
+  border-radius: 8px;
+  border: 1px solid rgba(217, 119, 6, 0.25);
+  font-size: 11px;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+
+.msg-hitl {
+  align-self: center;
+  max-width: 95%;
+  background: #fffbeb;
+  border: 1px solid rgba(217, 119, 6, 0.3);
+  color: #92400e;
+  font-size: 12px;
+}
+
+.hitl-inline-msg {
+  font-size: 11px;
+  color: var(--amber);
+  margin: 8px 0 0;
+}
+
+.auction-toolbar {
+  padding: 8px 12px 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.bidder-tag {
+  display: inline-block;
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-left: 4px;
+  vertical-align: middle;
+  font-weight: 600;
+}
+.bidder-tag.own { background: #dcfce7; color: #166534; }
+.bidder-tag.competitor { background: #fee2e2; color: #991b1b; }
+.bidder-tag.legacy { background: #e0e7ff; color: #3730a3; }
+.bidder-mix { font-size: 9px; color: var(--text2); font-weight: 400; }
+
 /* Consumer chat */
 .chat-messages {
   flex: 1 1 auto;

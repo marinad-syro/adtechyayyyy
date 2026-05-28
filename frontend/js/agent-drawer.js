@@ -7,6 +7,7 @@ const QUICK_PROMPTS = [
   'Explain the Tribe fit on the winning creative.',
   'Which finalist had the best expected value?',
   'What prompts should we target for this brand?',
+  'Do we need human approval before spending more?',
 ];
 
 export function initAgentDrawer() {

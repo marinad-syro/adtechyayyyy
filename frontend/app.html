@@ -53,7 +53,17 @@
         </section>
 
         <section class="dash-section">
-          <h3 class="section-title">③ Results (from chat preview)</h3>
+          <h3 class="section-title">③ Human review (HITL)</h3>
+          <p class="section-hint">The agent pauses and asks you to intervene when daily spend is high or a creative gets impressions with zero conversions.</p>
+          <div class="card">
+            <div id="hitlPanel">
+              <p class="section-hint">No pending reviews yet.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="dash-section">
+          <h3 class="section-title">④ Results (from chat preview)</h3>
           <p class="section-hint">Updates when you send user messages and log clicks or conversions.</p>
           <div class="card">
             <div id="performancePanel">
@@ -96,7 +106,10 @@
         <div id="decidePanel"><div class="empty-state">Send a consumer message to run the agent.</div></div>
       </div>
       <div class="tab-panel" id="tab-auction">
-        <div id="auctionPanel"><div class="empty-state">Auction results appear after each preview.</div></div>
+        <div class="auction-toolbar">
+          <button type="button" class="btn btn-sm" id="runLiveAuctionBtn" title="Re-run auction with your catalog + other onboarded brands">Simulate live competitor auction</button>
+        </div>
+        <div id="auctionPanel"><div class="empty-state">Auction results appear after each preview, or click simulate above.</div></div>
       </div>
     </div>
   </div>

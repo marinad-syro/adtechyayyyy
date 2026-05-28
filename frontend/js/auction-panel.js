@@ -8,16 +8,21 @@ export function renderAuction(container, auction) {
     <div class="auction-meta-row">
       <div><span class="ameta-lbl">Auction ID</span><br><span class="ameta-val">#${auction.auction_id}</span></div>
       <div><span class="ameta-lbl">Latency</span><br><span class="ameta-val green">${auction.latency_ms} ms</span></div>
-      <div><span class="ameta-lbl">Bidders</span><br><span class="ameta-val">${auction.total_bidders}</span></div>
+      <div><span class="ameta-lbl">Bidders</span><br><span class="ameta-val">${auction.total_bidders}${auction.competitor_count != null ? ` <span class="bidder-mix">(${auction.own_brand_count || 0} yours · ${auction.competitor_count || 0} competitors)</span>` : ''}</span></div>
       <div><span class="ameta-lbl">Context</span><br><span class="ameta-val" style="font-size:9px;color:var(--text2)">"${auction.context_snippet}"</span></div>
     </div>
     <div class="card-title">Live bids — effective CPM</div>
     <div class="bid-list">
       ${auction.all_bids.map((bid, i) => {
         const pct = (bid.effective_cpm / maxCPM * 100).toFixed(1);
+        const tag = bid.is_own_brand
+          ? '<span class="bidder-tag own">Your brand</span>'
+          : bid.bidder_type === 'legacy'
+            ? '<span class="bidder-tag legacy">Demo</span>'
+            : '<span class="bidder-tag competitor">Competitor</span>';
         return `
           <div class="bid-row ${i === 0 ? 'is-winner' : ''}">
-            <span>${i === 0 ? '👑' : bid.logo || '📦'} ${bid.advertiser_name}</span>
+            <span>${i === 0 ? '👑' : bid.logo || '📦'} ${bid.advertiser_name} ${tag}</span>
             <div class="bar-track"><div class="bar-fill" data-pct="${pct}" style="width:0%">${(bid.relevance_score * 100).toFixed(0)}%</div></div>
             <span class="ameta-val">$${bid.effective_cpm.toFixed(3)}</span>
           </div>`;

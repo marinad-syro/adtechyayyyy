@@ -3,6 +3,8 @@
   "bid_cap_multiplier": 2.5,
   "cvr_floor": 0.02,
   "spend_spike_threshold": 0.20,
+  "spend_warning_pct": 0.80,
+  "daily_budget_hard_limit_pct": 1.0,
   "brand_safety_threshold": 0.35,
   "blocked_terms": ["miracle cure", "guaranteed results", "lose weight fast", "get rich", "crypto"],
   "blocked_topics": ["politics", "gambling", "adult"],
@@ -11,5 +13,7 @@
   "top_k_finalists": 3,
   "intent_score_floor": 0.18,
   "relevance_score_floor": 0.18,
-  "pause_after_impressions_no_click": 3
+  "pause_after_impressions_no_click": 3,
+  "hitl_impressions_no_conversion": 3,
+  "include_competitor_bids": true
 }

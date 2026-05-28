@@ -34,6 +34,8 @@ def run_auction(context: str) -> dict:
             "cta": adv.get("cta", "Learn more →"),
             "brand_safety_tier": adv.get("brand_safety_tier", "safe"),
             "creative_id": adv.get("creative_id"),
+            "is_own_brand": adv.get("is_own_brand", False),
+            "bidder_type": adv.get("bidder_type", "competitor" if not adv.get("is_own_brand") else "own"),
         })
 
     bids.sort(key=lambda x: x["effective_cpm"], reverse=True)
@@ -98,9 +100,16 @@ def run_auction(context: str) -> dict:
         "all_bids": bids,
         "latency_ms": latency_ms,
         "total_bidders": len(bids),
+        "own_brand_count": sum(1 for b in bids if b.get("is_own_brand")),
+        "competitor_count": sum(1 for b in bids if not b.get("is_own_brand")),
     }
     auction_log.append(record)
     return record
+
+
+def run_live_auction(context: str) -> dict:
+    """Run a competitor-inclusive auction for demo / simulation."""
+    return run_auction(context)
 
 
 def get_auction_history(limit: int = 50) -> dict:

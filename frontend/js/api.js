@@ -60,6 +60,12 @@ export const runSimulation = (n_sessions = 50) =>
     body: JSON.stringify({ n_sessions, seed: 42 }),
   });
 
+export const runLiveAuction = (user_text) =>
+  request('/api/auction/live', {
+    method: 'POST',
+    body: JSON.stringify({ user_text }),
+  });
+
 export const scoreFit = (user_text, ad_copy) =>
   request('/api/score-fit', {
     method: 'POST',

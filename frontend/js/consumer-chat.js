@@ -81,6 +81,18 @@ function setTyping(on) {
   }
 }
 
+function appendHitlBanner(decision) {
+  const hitl = decision?.hitl_intervention;
+  const msg = hitl?.message || (decision?.escalate_reasons || []).join('; ');
+  if (!msg) return;
+  const c = document.getElementById('consumerMessages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-hitl';
+  div.innerHTML = `<strong>Human review required</strong> — ${msg} Approve or reject in step ④ on the dashboard, then send the message again.`;
+  c.appendChild(div);
+  c.scrollTop = c.scrollHeight;
+}
+
 function renderDecidePanel(decision) {
   const el = document.getElementById('decidePanel');
   if (!el || !decision) return;
@@ -94,6 +106,7 @@ function renderDecidePanel(decision) {
       <span class="action-badge action-${action}">${action.replace('_', ' ')}</span>
       ${decision.no_recommend_reason ? `<span style="font-size:10px;color:var(--text2);margin-left:8px">${decision.no_recommend_reason}</span>` : ''}
       ${decision.escalate_reasons?.length ? `<span style="font-size:10px;color:var(--amber);margin-left:8px">${decision.escalate_reasons.join('; ')}</span>` : ''}
+      ${decision.hitl_intervention?.message ? `<p class="hitl-inline-msg">${decision.hitl_intervention.message}</p>` : ''}
     </div>
     ${winner ? `
       <div class="winner-card">
@@ -145,7 +158,6 @@ async function sendConsumerMessage() {
     const data = await placementPreview({
       user_text: msg,
       brand_id: brandId || undefined,
-      skip_hitl: true,
       include_llm: true,
       conversation_history: conversationHistory,
     });
@@ -171,10 +183,12 @@ async function sendConsumerMessage() {
           : decision?.action === 'no_bid'
             ? 'No bid — below score floor, CVR floor, or safety gate'
             : decision?.action === 'escalate'
-              ? `Escalated: ${(decision.escalate_reasons || []).join(', ')}`
+              ? `Escalated — human must approve before serving ads`
               : '';
 
-    if (decision?.action === 'serve' && decision.winner) {
+    if (decision?.action === 'escalate') {
+      appendHitlBanner(decision);
+    } else if (decision?.action === 'serve' && decision.winner) {
       await appendInlineAd(decision.winner, 'decision');
     }
 
@@ -206,6 +220,10 @@ async function logOutcome(event, { silent = false, successLabel = null } = {}) {
     if (!silent) showToast(e.message, true);
     return false;
   }
+}
+
+export function getLastUserText() {
+  return lastUserText;
 }
 
 export function getAgentContext() {

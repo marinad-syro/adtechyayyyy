@@ -137,6 +137,54 @@ def _product_target_context(product: dict) -> str:
     return f"{product['name']} {kws} {creatives}".strip()
 
 
+def _legacy_bidders() -> list[dict]:
+    return [
+        dict(a, product_id=a["id"], advertiser_name=a["name"], is_own_brand=False, bidder_type="competitor")
+        for a in LEGACY_ADVERTISERS
+    ]
+
+
+def _other_brand_bidders() -> list[dict]:
+    """Products from other onboarded brands — compete in the same auction."""
+    from agent.brand_store import get_active_brand, list_brands
+
+    active = get_active_brand()
+    active_id = active["id"] if active else None
+    bidders: list[dict] = []
+
+    for brand in list_brands():
+        if brand.get("id") == active_id:
+            continue
+        brand_name = (
+            brand.get("ad_plan", {}).get("brand_profile", {}).get("name")
+            or brand.get("website_url", "Competitor")
+        )
+        products = (
+            brand.get("ad_plan", {})
+            .get("suggested_catalog", {})
+            .get("products", [])[:3]
+        )
+        for p in products:
+            creative = p.get("creatives", [{}])[0]
+            bidders.append({
+                "id": f"comp-{p['id']}",
+                "product_id": p["id"],
+                "name": p["name"],
+                "advertiser_name": brand_name,
+                "logo": CATEGORY_LOGOS.get(p.get("category", ""), "🏷️"),
+                "category": p.get("category", "general").replace("_", " ").title(),
+                "target_context": _product_target_context(p),
+                "max_cpm": round(float(p.get("base_bid", 1.0)) * 22, 2),
+                "ad_copy": creative.get("copy", p["name"]),
+                "cta": "Learn more →",
+                "creative_id": creative.get("id"),
+                "brand_safety_tier": "safe",
+                "is_own_brand": False,
+                "bidder_type": "competitor",
+            })
+    return bidders
+
+
 def _catalog_to_bidders() -> list[dict]:
     from agent.catalog import get_products
 
@@ -156,15 +204,35 @@ def _catalog_to_bidders() -> list[dict]:
             "cta": "Learn more →",
             "creative_id": creative.get("id"),
             "brand_safety_tier": "safe",
+            "is_own_brand": True,
+            "bidder_type": "own",
         })
     return bidders
 
 
-def get_all_bidders() -> list[dict]:
+def get_all_bidders(include_competitors: bool | None = None) -> list[dict]:
+    from agent.catalog import load_policies
+
+    policies = load_policies()
+    if include_competitors is None:
+        include_competitors = policies.get("include_competitor_bids", True)
+
     catalog = _catalog_to_bidders()
-    if catalog:
+    if not catalog:
+        return _legacy_bidders()
+
+    if not include_competitors:
         return catalog
-    return [dict(a, product_id=a["id"], advertiser_name=a["name"]) for a in LEGACY_ADVERTISERS]
+
+    seen_names: set[str] = {b["advertiser_name"].lower() for b in catalog}
+    merged = list(catalog)
+    for bidder in _other_brand_bidders() + _legacy_bidders():
+        key = bidder["advertiser_name"].lower()
+        if key in seen_names:
+            continue
+        seen_names.add(key)
+        merged.append(bidder)
+    return merged
 
 
 def _refresh_embeddings():

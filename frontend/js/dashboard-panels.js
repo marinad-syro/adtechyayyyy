@@ -7,6 +7,7 @@ import {
   activateBrand,
   deactivateBrand,
   resetDashboard,
+  resolveEscalation,
 } from './api.js';
 
 const ACTIVE_BRAND_KEY = 'contextbid-active-brand';
@@ -104,6 +105,7 @@ export async function refreshDashboard({ resetStats = false } = {}) {
     }
 
     renderPerformance(dashboard);
+    renderEscalations(dashboard);
     const products = getActiveBrandId() ? (catalog.products || []) : [];
     renderCatalog(products);
     state.activeWebsite = getActiveBrandId()
@@ -119,10 +121,23 @@ function renderPerformance(d) {
   const el = document.getElementById('performancePanel');
   if (!el) return;
 
+  const budget = d.daily_budget || state.policies?.daily_budget || 500;
+  const spend = d.spend ?? 0;
+  const pct = budget ? Math.min(100, (spend / budget) * 100) : 0;
+  const budgetBar = budget ? `
+    <div class="budget-row">
+      <div class="budget-labels">
+        <span>Spend $${spend.toFixed(2)}</span>
+        <span>${pct.toFixed(0)}% of $${budget} daily</span>
+      </div>
+      <div class="budget-track"><div class="budget-fill ${pct >= 80 ? 'warn' : ''}" style="width:${pct}%"></div></div>
+    </div>` : '';
+
   const hasActivity = (d.impressions || 0) + (d.clicks || 0) + (d.conversions || 0) > 0;
 
   if (!hasActivity) {
     el.innerHTML = `
+      ${budgetBar}
       <div class="stat-row">
         <div class="stat-box"><div class="stat-val">0</div><div class="stat-lbl">Impressions</div></div>
         <div class="stat-box"><div class="stat-val">0</div><div class="stat-lbl">Clicks</div></div>
@@ -136,6 +151,7 @@ function renderPerformance(d) {
   const cvr = d.clicks ? ((d.conversions / d.clicks) * 100).toFixed(1) : '0.0';
 
   el.innerHTML = `
+    ${budgetBar}
     <div class="stat-row">
       <div class="stat-box">
         <div class="stat-val">${d.impressions}</div>
@@ -188,6 +204,63 @@ function renderCatalog(products) {
         </li>`;
       }).join('')}
     </ul>`;
+}
+
+const GATE_LABELS = {
+  budget_exceeded: 'Budget cap',
+  spend_high: 'High spend',
+  spend_spike: 'Spend spike',
+  no_conversions: 'No conversions',
+  new_creative: 'New creative',
+  pause_unprofitable: 'Paused creative',
+  insula_spike: 'Gut check',
+};
+
+function renderEscalations(dashboard) {
+  const el = document.getElementById('hitlPanel');
+  if (!el) return;
+
+  const items = (dashboard?.escalation_queue || []).filter(i => i.status === 'pending');
+  const alert = dashboard?.hitl?.spend_alert;
+
+  if (!items.length && !alert) {
+    el.innerHTML = '<p class="section-hint">No pending reviews. The agent will queue items here when spend or performance limits are hit.</p>';
+    return;
+  }
+
+  let html = '';
+  if (alert) {
+    html += `<div class="hitl-alert"><strong>Intervention needed:</strong> ${alert.message}</div>`;
+  }
+  if (items.length) {
+    html += items.map(item => `
+      <div class="escalation-item" data-id="${item.id}">
+        <span class="escalation-tag">${GATE_LABELS[item.gate] || item.gate}</span>
+        <p class="escalation-msg">${item.message}</p>
+        <div class="escalation-actions">
+          <button type="button" class="btn btn-sm btn-primary hitl-approve" data-id="${item.id}">Approve</button>
+          <button type="button" class="btn btn-sm hitl-reject" data-id="${item.id}">Reject</button>
+        </div>
+      </div>`).join('');
+  }
+  el.innerHTML = html;
+
+  el.querySelectorAll('.hitl-approve').forEach(btn => {
+    btn.addEventListener('click', () => handleEscalationResolve(btn.dataset.id, true));
+  });
+  el.querySelectorAll('.hitl-reject').forEach(btn => {
+    btn.addEventListener('click', () => handleEscalationResolve(btn.dataset.id, false));
+  });
+}
+
+async function handleEscalationResolve(id, approved) {
+  try {
+    await resolveEscalation(id, approved);
+    showToast(approved ? 'Approved — you can retry the chat message' : 'Rejected');
+    await refreshDashboard();
+  } catch (e) {
+    showToast(e.message, true);
+  }
 }
 
 async function clearActiveBrand() {

@@ -10,6 +10,8 @@ from agent.guardrails import check_brand_safety, check_insula_spike
 from agent.intent import extract_intent
 from agent.outcomes import (
     add_escalation,
+    check_creative_no_conversions_hitl,
+    check_hitl_spend,
     check_spend_spike,
     creative_never_served,
     get_bandit_bonus,
@@ -161,6 +163,28 @@ def decide(
     winner = None
     action = "no_bid"
     escalate_reasons = []
+    hitl_intervention = None
+
+    if not skip_hitl:
+        spend_hitl = check_hitl_spend()
+        if spend_hitl:
+            gate, msg = spend_hitl
+            escalate_reasons.append(msg)
+            add_escalation(gate, msg, {})
+            hitl_intervention = {"required": True, "gate": gate, "message": msg}
+            return {
+                "session_id": session_id,
+                "intent": intent,
+                "action": "escalate",
+                "winner": None,
+                "candidates": [_public_candidate(c) for c in scored],
+                "placement_id": None,
+                "escalate_reasons": escalate_reasons,
+                "hitl_intervention": hitl_intervention,
+                "trace": trace,
+                "mode": "baseline" if use_baseline else "optimized",
+                "brand_id": brand_id,
+            }
 
     for cand in scored:
         if not cand["brand_safety"]["passed"]:
@@ -186,6 +210,20 @@ def decide(
         if cand["action"] != "bid":
             continue
 
+        perf_hitl = check_creative_no_conversions_hitl(cand["creative_id"])
+        if perf_hitl and not skip_hitl:
+            gate, msg = perf_hitl
+            escalate_reasons.append(msg)
+            add_escalation(
+                gate,
+                msg,
+                {"creative_id": cand["creative_id"], "copy": cand["copy"]},
+            )
+            winner = cand
+            action = "escalate"
+            hitl_intervention = {"required": True, "gate": gate, "message": msg}
+            break
+
         if policies.get("require_creative_approval") and creative_never_served(cand["creative_id"]):
             if skip_hitl:
                 pass
@@ -198,6 +236,11 @@ def decide(
                 )
                 winner = cand
                 action = "escalate"
+                hitl_intervention = {
+                    "required": True,
+                    "gate": "new_creative",
+                    "message": f"First serve requires approval: {cand['creative_id']}",
+                }
                 break
 
         if check_spend_spike() and not skip_hitl:
@@ -205,6 +248,11 @@ def decide(
             add_escalation("spend_spike", "Spend rate exceeds daily pace threshold")
             winner = cand
             action = "escalate"
+            hitl_intervention = {
+                "required": True,
+                "gate": "spend_spike",
+                "message": "Spend rate exceeds daily pace threshold",
+            }
             break
 
         winner = cand
@@ -241,6 +289,7 @@ def decide(
         "candidates": [_public_candidate(c) for c in scored],
         "placement_id": placement_id,
         "escalate_reasons": escalate_reasons,
+        "hitl_intervention": hitl_intervention,
         "trace": trace,
         "mode": "baseline" if use_baseline else "optimized",
         "brand_id": brand_id,
