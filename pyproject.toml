@@ -1,3 +1,15 @@
+[project]
+name = "brain-text-viz"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.100",
+  "python-multipart",
+  "python-dotenv",
+  "httpx>=0.27",
+  "openai>=1.0",
+]
+
 [tool.vercel]
 entrypoint = "app:app"
 
