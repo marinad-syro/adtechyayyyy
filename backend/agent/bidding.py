@@ -19,7 +19,7 @@ def compute_bid(
     cap = base_bid * policies.get("bid_cap_multiplier", 2.5)
 
     bid = min(cap, base_bid * p_cvr * max(intent_score, 0.1))
-    ev = p_cvr * conv_val * intent_score - bid
+    ev = p_cvr * conv_val - bid
 
     cvr_floor = policies.get("cvr_floor", 0.02)
     if p_cvr < cvr_floor:
