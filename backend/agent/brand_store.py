@@ -19,15 +19,24 @@ _active_brand_id: str | None = None
 
 def _load_all() -> dict:
     if not BRANDS_PATH.exists():
-        return {"brands": {}}
+        return {"brands": {}, "active_brand_id": None}
     with open(BRANDS_PATH, encoding="utf-8") as f:
-        return json.load(f)
+        data = json.load(f)
+    data.setdefault("brands", {})
+    data.setdefault("active_brand_id", None)
+    return data
 
 
 def _save_all(data: dict):
     BRANDS_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(BRANDS_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
+
+
+def _persist_active_brand_id(brand_id: str | None):
+    data = _load_all()
+    data["active_brand_id"] = brand_id
+    _save_all(data)
 
 
 def save_brand(profile: dict) -> str:
@@ -53,9 +62,17 @@ def set_active_brand(brand_id: str | None):
     if brand_id is not None and get_brand(brand_id) is None:
         raise ValueError(f"Unknown brand_id: {brand_id}")
     _active_brand_id = brand_id
+    _persist_active_brand_id(brand_id)
+
+
+def _ensure_active_loaded():
+    global _active_brand_id
+    if _active_brand_id is None:
+        _active_brand_id = _load_all().get("active_brand_id")
 
 
 def get_active_brand() -> dict | None:
+    _ensure_active_loaded()
     if _active_brand_id:
         return get_brand(_active_brand_id)
     return None

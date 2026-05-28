@@ -25,18 +25,19 @@ if str(_ROOT) not in sys.path:
 
 
 def _resolve_frontend_dir() -> Path | None:
-    """Locate bundled static files (build copies frontend/ → backend/_frontend and _frontend/)."""
+    """Locate static files. Prefer repo frontend/ in dev; bundled copies for Vercel."""
     here = Path(__file__).resolve().parent
     for candidate in (
+        here.parent / "frontend",
+        here / "frontend",
         here / "_frontend",
         here.parent / "_frontend",
         here.parent / "backend" / "_frontend",
         here.parent / "public",
+        Path.cwd() / "frontend",
         Path.cwd() / "_frontend",
         Path.cwd() / "backend" / "_frontend",
         Path.cwd() / "public",
-        here / "frontend",
-        here.parent / "frontend",
     ):
         if candidate.is_dir() and (candidate / "app.html").is_file():
             return candidate

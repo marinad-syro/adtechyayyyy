@@ -1,6 +1,6 @@
 import { placementPreview, recordOutcome } from './api.js';
 import { renderAuction } from './auction-panel.js';
-import { refreshDashboard, setLastPreview, showToast, getAppState } from './dashboard-panels.js';
+import { refreshDashboard, setLastPreview, showToast, getAppState, getActiveBrandId } from './dashboard-panels.js';
 
 let conversationHistory = [];
 let currentPlacementId = null;
@@ -124,7 +124,7 @@ async function sendConsumerMessage() {
   const msg = input.value.trim();
   if (!msg) return;
 
-  if (!getAppState().activeBrandId) {
+  if (!getActiveBrandId()) {
     showToast('Load a website URL in the dashboard first', true);
     return;
   }
@@ -141,7 +141,7 @@ async function sendConsumerMessage() {
     '<div class="loading-block"><span class="spinner"></span>Running conversion model…</div>';
 
   try {
-    const brandId = getAppState().activeBrandId;
+    const brandId = getActiveBrandId();
     const data = await placementPreview({
       user_text: msg,
       brand_id: brandId || undefined,
@@ -211,7 +211,7 @@ async function logOutcome(event, { silent = false, successLabel = null } = {}) {
 export function getAgentContext() {
   const preview = getAppState().lastPreview;
   return {
-    active_brand_id: getAppState().activeBrandId,
+    active_brand_id: getActiveBrandId(),
     last_decision: preview?.decision || null,
     last_auction: preview?.auction || null,
     dashboard_stats: getAppState().dashboard,

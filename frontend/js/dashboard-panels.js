@@ -4,6 +4,7 @@ import {
   getPolicies,
   getBrands,
   onboardBrand,
+  activateBrand,
   deactivateBrand,
   resetDashboard,
 } from './api.js';
@@ -21,8 +22,28 @@ let state = {
   activeWebsite: null,
 };
 
+let refreshSeq = 0;
+
 export function getAppState() {
   return state;
+}
+
+/** Active brand for chat — survives stale dashboard refreshes. */
+export function getActiveBrandId() {
+  return state.activeBrandId || sessionStorage.getItem(ACTIVE_BRAND_KEY) || null;
+}
+
+function rememberActiveBrand(brandId) {
+  if (!brandId) return;
+  state.activeBrandId = brandId;
+  sessionStorage.setItem(ACTIVE_BRAND_KEY, brandId);
+}
+
+async function ensureServerActiveBrand(brandId) {
+  if (!brandId) return;
+  const brandsData = await getBrands();
+  if (brandsData.active_brand_id === brandId) return;
+  await activateBrand(brandId);
 }
 
 export function setLastPreview(preview) {
@@ -40,6 +61,7 @@ export function showToast(message, isError = false) {
 }
 
 export async function refreshDashboard({ resetStats = false } = {}) {
+  const seq = ++refreshSeq;
   try {
     if (resetStats) {
       try {
@@ -47,27 +69,48 @@ export async function refreshDashboard({ resetStats = false } = {}) {
       } catch {
         /* ignore */
       }
+      if (seq !== refreshSeq) return;
       showEmptyPerformance();
     }
+
+    const storedBrand = getActiveBrandId();
+    if (storedBrand) {
+      try {
+        await ensureServerActiveBrand(storedBrand);
+      } catch {
+        /* brand may have been removed */
+      }
+    }
+    if (seq !== refreshSeq) return;
+
     const [dashboard, catalog, policies, brandsData] = await Promise.all([
       getDashboard(),
       getCatalog(),
       getPolicies(),
       getBrands(),
     ]);
+    if (seq !== refreshSeq) return;
 
     state.dashboard = dashboard;
     state.policies = policies;
     state.brands = brandsData.brands || [];
-    state.activeBrandId = brandsData.active_brand_id;
+
+    const serverActive = brandsData.active_brand_id;
+    const resolvedActive = serverActive || storedBrand || null;
+    if (resolvedActive) {
+      rememberActiveBrand(resolvedActive);
+    } else if (!storedBrand) {
+      state.activeBrandId = null;
+    }
 
     renderPerformance(dashboard);
-    const products = state.activeBrandId ? (catalog.products || []) : [];
+    const products = getActiveBrandId() ? (catalog.products || []) : [];
     renderCatalog(products);
-    state.activeWebsite = state.activeBrandId
-      ? (brandsData.brands || []).find(b => b.id === state.activeBrandId)?.website_url
+    state.activeWebsite = getActiveBrandId()
+      ? (brandsData.brands || []).find(b => b.id === getActiveBrandId())?.website_url
       : null;
   } catch (e) {
+    if (seq !== refreshSeq) return;
     showToast('Failed to load dashboard: ' + e.message, true);
   }
 }
@@ -114,6 +157,12 @@ function renderPerformance(d) {
   `;
 }
 
+function formatDepartment(dept) {
+  if (!dept || dept === 'general' || dept === 'products') return '';
+  const labels = { men: "Men's", women: "Women's", kids: 'Kids', baby: 'Baby', home: 'Home', accessories: 'Accessories' };
+  return labels[dept] || dept.charAt(0).toUpperCase() + dept.slice(1);
+}
+
 function renderCatalog(products) {
   const el = document.getElementById('catalogPanel');
   if (!el) return;
@@ -121,14 +170,23 @@ function renderCatalog(products) {
     el.innerHTML = '';
     return;
   }
+  const depts = [...new Set(products.map(p => p.department).filter(d => d && d !== 'general' && d !== 'products'))];
+  const diversityNote = depts.length > 1
+    ? ` across ${depts.map(formatDepartment).join(', ')}`
+    : depts.length === 1
+      ? ` · ${formatDepartment(depts[0])}`
+      : '';
   el.innerHTML = `
-    <p class="catalog-count">${products.length} product${products.length === 1 ? '' : 's'} ready to bid on</p>
+    <p class="catalog-count">${products.length} product${products.length === 1 ? '' : 's'} ready to bid on${diversityNote}</p>
     <ul class="catalog-list">
-      ${products.map(p => `
+      ${products.map(p => {
+        const deptLabel = formatDepartment(p.department);
+        return `
         <li class="catalog-item">
-          <span class="catalog-name">${p.name}</span>
+          <span class="catalog-name">${p.name}${deptLabel ? `<span class="catalog-dept">${deptLabel}</span>` : ''}</span>
           <span class="catalog-meta">${(p.creatives || []).length} ad variant${(p.creatives || []).length === 1 ? '' : 's'}</span>
-        </li>`).join('')}
+        </li>`;
+      }).join('')}
     </ul>`;
 }
 
@@ -147,7 +205,12 @@ function showEmptyPerformance() {
 
 export async function initDashboardPanels() {
   showEmptyPerformance();
-  await clearActiveBrand();
+
+  const storedBrand = sessionStorage.getItem(ACTIVE_BRAND_KEY);
+  if (storedBrand) {
+    rememberActiveBrand(storedBrand);
+  }
+
   const catalogEl = document.getElementById('catalogPanel');
   if (catalogEl) catalogEl.innerHTML = '';
   const resultEl = document.getElementById('onboardResult');
@@ -156,7 +219,7 @@ export async function initDashboardPanels() {
     resultEl.textContent = '';
   }
   const urlInput = document.getElementById('onboardUrl');
-  if (urlInput) urlInput.value = '';
+  if (urlInput && !storedBrand) urlInput.value = '';
 
   document.getElementById('onboardBtn')?.addEventListener('click', async () => {
     const url = document.getElementById('onboardUrl')?.value?.trim();
@@ -192,8 +255,9 @@ export async function initDashboardPanels() {
         resultEl.textContent = `✓ ${n} product${n === 1 ? '' : 's'} loaded${crawlNote}. Try a prompt in chat preview →`;
       }
       sessionStorage.setItem(ACTIVE_BRAND_KEY, result.brand_id);
+      rememberActiveBrand(result.brand_id);
       showToast('Catalog ready — try chat preview');
-      refreshDashboard();
+      await refreshDashboard();
     } catch (err) {
       if (resultEl) {
         resultEl.className = 'onboard-result error';
@@ -206,5 +270,5 @@ export async function initDashboardPanels() {
     }
   });
 
-  await refreshDashboard({ resetStats: true });
+  await refreshDashboard({ resetStats: !storedBrand });
 }

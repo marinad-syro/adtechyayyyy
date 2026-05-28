@@ -965,6 +965,21 @@ textarea { resize: vertical; min-height: 52px; }
 .catalog-name {
   font-weight: 600;
   color: var(--text);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.catalog-dept {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent, #6b8cff);
+  background: rgba(107, 140, 255, 0.12);
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .catalog-meta {

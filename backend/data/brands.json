@@ -1010,6 +1010,763 @@
         }
       },
       "updated_at": "2026-05-28T20:26:06.727416+00:00"
+    },
+    "caf1bc1a-36ef-46ab-b65b-6be032286188": {
+      "id": "caf1bc1a-36ef-46ab-b65b-6be032286188",
+      "website_url": "https://www.uniqlo.com/",
+      "ad_plan": {
+        "brand_profile": {
+          "name": "Kids\u2019 Sale",
+          "website": "https://www.uniqlo.com/",
+          "domain": "www.uniqlo.com",
+          "voice": "professional",
+          "value_props": [
+            "Sale prices starting at $5.90",
+            "Comfort and play-ready essentials",
+            "Graphic T-shirts from popular collaborations",
+            "Made with recycled materials",
+            "Limited-time offers"
+          ],
+          "keywords": [
+            "UT Graphic T-Shirt",
+            "Cotton Inner Tank Top",
+            "DRY Sweatshirt",
+            "Wide Straight Jeans",
+            "Easy Shorts",
+            "UV Protection Parka",
+            "Leggings",
+            "Ultra Stretch Jogger Pants",
+            "Jason Polan",
+            "TOY STORY",
+            "Sanrio characters",
+            "POP MART"
+          ],
+          "summary": "Shop UNIQLO\u2019s Sale for comfort and play-ready essentials now for less."
+        },
+        "creative_guidelines": {
+          "preferred_tones": [
+            "urgency",
+            "empathy"
+          ],
+          "avoid_tones": [
+            "urgency"
+          ],
+          "notes": null
+        },
+        "guardrails": {
+          "blocked_terms": [],
+          "blocked_topics": []
+        },
+        "suggested_catalog": {
+          "products": [
+            {
+              "id": "cotton-inner-tank-top-2-pack-9085ee",
+              "name": "Cotton Inner Tank Top | 2 Pack",
+              "category": "research",
+              "keywords": [
+                "UT Graphic T-Shirt",
+                "Cotton Inner Tank Top",
+                "DRY Sweatshirt",
+                "Wide Straight Jeans",
+                "Easy Shorts",
+                "UV Protection Parka",
+                "Leggings",
+                "Ultra Stretch Jogger Pants"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "cotton-inner-tank-top-2-pack-empathy",
+                  "tone": "empathy",
+                  "copy": "Cotton Inner Tank Top | 2 Pack \u2014 discover how Kids\u2019 Sale can help."
+                },
+                {
+                  "id": "cotton-inner-tank-top-2-pack-feature",
+                  "tone": "feature",
+                  "copy": "Kids\u2019 Sale: Cotton Inner Tank Top | 2 Pack"
+                }
+              ]
+            },
+            {
+              "id": "jason-polan-ut-graphic-t-shirt-4b6da5",
+              "name": "Jason Polan UT Graphic T-Shirt",
+              "category": "research",
+              "keywords": [
+                "UT Graphic T-Shirt",
+                "Cotton Inner Tank Top",
+                "DRY Sweatshirt",
+                "Wide Straight Jeans",
+                "Easy Shorts",
+                "UV Protection Parka",
+                "Leggings",
+                "Ultra Stretch Jogger Pants"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "jason-polan-ut-graphic-t-shirt-empathy",
+                  "tone": "empathy",
+                  "copy": "Jason Polan UT Graphic T-Shirt \u2014 discover how Kids\u2019 Sale can help."
+                },
+                {
+                  "id": "jason-polan-ut-graphic-t-shirt-feature",
+                  "tone": "feature",
+                  "copy": "Kids\u2019 Sale: Jason Polan UT Graphic T-Shirt"
+                }
+              ]
+            },
+            {
+              "id": "toy-story-ut-graphic-t-shirt-022c88",
+              "name": "TOY STORY UT Graphic T-Shirt",
+              "category": "research",
+              "keywords": [
+                "UT Graphic T-Shirt",
+                "Cotton Inner Tank Top",
+                "DRY Sweatshirt",
+                "Wide Straight Jeans",
+                "Easy Shorts",
+                "UV Protection Parka",
+                "Leggings",
+                "Ultra Stretch Jogger Pants"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "toy-story-ut-graphic-t-shirt-empathy",
+                  "tone": "empathy",
+                  "copy": "TOY STORY UT Graphic T-Shirt \u2014 discover how Kids\u2019 Sale can help."
+                },
+                {
+                  "id": "toy-story-ut-graphic-t-shirt-feature",
+                  "tone": "feature",
+                  "copy": "Kids\u2019 Sale: TOY STORY UT Graphic T-Shirt"
+                }
+              ]
+            },
+            {
+              "id": "dry-sweatshirt-dc20b7",
+              "name": "DRY Sweatshirt",
+              "category": "research",
+              "keywords": [
+                "UT Graphic T-Shirt",
+                "Cotton Inner Tank Top",
+                "DRY Sweatshirt",
+                "Wide Straight Jeans",
+                "Easy Shorts",
+                "UV Protection Parka",
+                "Leggings",
+                "Ultra Stretch Jogger Pants"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "dry-sweatshirt-empathy",
+                  "tone": "empathy",
+                  "copy": "DRY Sweatshirt \u2014 discover how Kids\u2019 Sale can help."
+                },
+                {
+                  "id": "dry-sweatshirt-feature",
+                  "tone": "feature",
+                  "copy": "Kids\u2019 Sale: DRY Sweatshirt"
+                }
+              ]
+            },
+            {
+              "id": "wide-straight-jeans-77f9d7",
+              "name": "Wide Straight Jeans",
+              "category": "research",
+              "keywords": [
+                "UT Graphic T-Shirt",
+                "Cotton Inner Tank Top",
+                "DRY Sweatshirt",
+                "Wide Straight Jeans",
+                "Easy Shorts",
+                "UV Protection Parka",
+                "Leggings",
+                "Ultra Stretch Jogger Pants"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "wide-straight-jeans-empathy",
+                  "tone": "empathy",
+                  "copy": "Wide Straight Jeans \u2014 discover how Kids\u2019 Sale can help."
+                },
+                {
+                  "id": "wide-straight-jeans-feature",
+                  "tone": "feature",
+                  "copy": "Kids\u2019 Sale: Wide Straight Jeans"
+                }
+              ]
+            }
+          ]
+        },
+        "campaign_defaults": {
+          "daily_budget": 500.0,
+          "cvr_floor": 0.02,
+          "bid_strategy": "conversion_optimized"
+        },
+        "source": {
+          "tavily_extract": {
+            "source": "tavily_crawl",
+            "method": "crawl",
+            "storefront_url": "https://www.uniqlo.com/us/en/",
+            "failed": [],
+            "chars": 22000,
+            "pages_crawled": 5,
+            "urls_crawled": [
+              "https://www.uniqlo.com/us/en/feature/sale/kids",
+              "https://www.uniqlo.com/us/en/baby/newborn/bodysuits",
+              "https://www.uniqlo.com/us/en/kids/sport-utility-wear",
+              "https://www.uniqlo.com/us/en/baby/newborn",
+              "https://www.uniqlo.com/us/en/kids/bottoms/shorts"
+            ],
+            "content_quality": 0.907,
+            "crawl_settings": {
+              "max_depth": 2,
+              "max_breadth": 15,
+              "limit": 25
+            }
+          },
+          "content_preview": "## Page: https://www.uniqlo.com/us/en/feature/sale/kids\n\n[SHOP MEMORIAL DAY SALE + Get Your FREE Gift!](https://www.uniqlo.com/us/en/spl/memorial-day-sale)\n\n[women](/us/en/)[men](/us/en/men)kids[baby](/us/en/baby)\n\n# Kids\u2019 Sale\n\nShop UNIQLO\u2019s Sale for comfort and play-ready essentials now for less.\n\n[Shop all Memorial Day Sale here.](https://www.uniqlo.com/us/en/spl/memorial-day-sale?path=22212%2C%2C%2C)\n\n[WOMEN](/us/en/feature/sale/women)[MEN](/us/en/feature/sale/men)KIDS[BABY](/us/en/feature/s",
+          "structured_by": "llm"
+        }
+      },
+      "updated_at": "2026-05-28T20:36:31.045824+00:00"
+    },
+    "8aea024f-479f-4d42-beb9-db8a7ba44751": {
+      "id": "8aea024f-479f-4d42-beb9-db8a7ba44751",
+      "website_url": "https://www.uniqlo.com/",
+      "ad_plan": {
+        "brand_profile": {
+          "name": "UNIQLO",
+          "website": "https://www.uniqlo.com/",
+          "domain": "www.uniqlo.com",
+          "voice": "professional",
+          "value_props": [
+            "Innovative quick-drying and breathable fabrics",
+            "High-quality natural materials like premium linen and cotton",
+            "Affordable pricing with regular deals",
+            "Versatile, mix-and-match styles for all ages",
+            "Focus on comfort, stretch, and performance"
+          ],
+          "keywords": [
+            "AIRism",
+            "Linen",
+            "T-Shirt",
+            "Polo Shirt",
+            "Graphic Tee",
+            "Shorts",
+            "Joggers",
+            "Sweatshirt",
+            "Jeans",
+            "Bra Top",
+            "UT Collection",
+            "LifeWear"
+          ],
+          "summary": "UNIQLO offers high-quality, comfortable everyday apparel for men, women, and kids using innovative fabrics like AIRism and premium linen, with frequent limited-time sales and graphic collaborations."
+        },
+        "creative_guidelines": {
+          "preferred_tones": [
+            "urgency",
+            "empathy"
+          ],
+          "avoid_tones": [
+            "urgency"
+          ],
+          "notes": null
+        },
+        "guardrails": {
+          "blocked_terms": [],
+          "blocked_topics": []
+        },
+        "suggested_catalog": {
+          "products": [
+            {
+              "id": "airism-cotton-pique-polo-shirt-1af1f2",
+              "name": "AIRism Cotton Pique Polo Shirt",
+              "category": "research",
+              "department": "men",
+              "keywords": [
+                "AIRism",
+                "Linen",
+                "T-Shirt",
+                "Polo Shirt",
+                "Graphic Tee",
+                "Shorts",
+                "Joggers",
+                "Sweatshirt"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "airism-cotton-pique-polo-shirt-empathy",
+                  "tone": "empathy",
+                  "copy": "AIRism Cotton Pique Polo Shirt \u2014 discover how UNIQLO can help."
+                },
+                {
+                  "id": "airism-cotton-pique-polo-shirt-feature",
+                  "tone": "feature",
+                  "copy": "UNIQLO: AIRism Cotton Pique Polo Shirt"
+                }
+              ]
+            },
+            {
+              "id": "100-premium-linen-shirt-8ff043",
+              "name": "100% Premium Linen Shirt",
+              "category": "research",
+              "department": "women",
+              "keywords": [
+                "AIRism",
+                "Linen",
+                "T-Shirt",
+                "Polo Shirt",
+                "Graphic Tee",
+                "Shorts",
+                "Joggers",
+                "Sweatshirt"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "100-premium-linen-shirt-empathy",
+                  "tone": "empathy",
+                  "copy": "100% Premium Linen Shirt \u2014 discover how UNIQLO can help."
+                },
+                {
+                  "id": "100-premium-linen-shirt-feature",
+                  "tone": "feature",
+                  "copy": "UNIQLO: 100% Premium Linen Shirt"
+                }
+              ]
+            },
+            {
+              "id": "cotton-inner-tank-top-2-pack-fd7485",
+              "name": "Cotton Inner Tank Top | 2 Pack",
+              "category": "research",
+              "department": "kids",
+              "keywords": [
+                "AIRism",
+                "Linen",
+                "T-Shirt",
+                "Polo Shirt",
+                "Graphic Tee",
+                "Shorts",
+                "Joggers",
+                "Sweatshirt"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "cotton-inner-tank-top-2-pack-empathy",
+                  "tone": "empathy",
+                  "copy": "Cotton Inner Tank Top | 2 Pack \u2014 discover how UNIQLO can help."
+                },
+                {
+                  "id": "cotton-inner-tank-top-2-pack-feature",
+                  "tone": "feature",
+                  "copy": "UNIQLO: Cotton Inner Tank Top | 2 Pack"
+                }
+              ]
+            },
+            {
+              "id": "crew-neck-t-shirt-8fc3a3",
+              "name": "Crew Neck T-Shirt",
+              "category": "research",
+              "department": "men",
+              "keywords": [
+                "AIRism",
+                "Linen",
+                "T-Shirt",
+                "Polo Shirt",
+                "Graphic Tee",
+                "Shorts",
+                "Joggers",
+                "Sweatshirt"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "crew-neck-t-shirt-empathy",
+                  "tone": "empathy",
+                  "copy": "Crew Neck T-Shirt \u2014 discover how UNIQLO can help."
+                },
+                {
+                  "id": "crew-neck-t-shirt-feature",
+                  "tone": "feature",
+                  "copy": "UNIQLO: Crew Neck T-Shirt"
+                }
+              ]
+            },
+            {
+              "id": "bra-top-1eb3d2",
+              "name": "Bra Top",
+              "category": "research",
+              "department": "women",
+              "keywords": [
+                "AIRism",
+                "Linen",
+                "T-Shirt",
+                "Polo Shirt",
+                "Graphic Tee",
+                "Shorts",
+                "Joggers",
+                "Sweatshirt"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "bra-top-empathy",
+                  "tone": "empathy",
+                  "copy": "Bra Top \u2014 discover how UNIQLO can help."
+                },
+                {
+                  "id": "bra-top-feature",
+                  "tone": "feature",
+                  "copy": "UNIQLO: Bra Top"
+                }
+              ]
+            },
+            {
+              "id": "jason-polan-ut-graphic-t-shirt-89bbf7",
+              "name": "Jason Polan UT Graphic T-Shirt",
+              "category": "research",
+              "department": "kids",
+              "keywords": [
+                "AIRism",
+                "Linen",
+                "T-Shirt",
+                "Polo Shirt",
+                "Graphic Tee",
+                "Shorts",
+                "Joggers",
+                "Sweatshirt"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "jason-polan-ut-graphic-t-shirt-empathy",
+                  "tone": "empathy",
+                  "copy": "Jason Polan UT Graphic T-Shirt \u2014 discover how UNIQLO can help."
+                },
+                {
+                  "id": "jason-polan-ut-graphic-t-shirt-feature",
+                  "tone": "feature",
+                  "copy": "UNIQLO: Jason Polan UT Graphic T-Shirt"
+                }
+              ]
+            }
+          ]
+        },
+        "campaign_defaults": {
+          "daily_budget": 500.0,
+          "cvr_floor": 0.02,
+          "bid_strategy": "conversion_optimized"
+        },
+        "source": {
+          "tavily_extract": {
+            "source": "tavily_crawl",
+            "method": "crawl",
+            "storefront_url": "https://www.uniqlo.com/us/en/",
+            "failed": [],
+            "chars": 22000,
+            "pages_crawled": 6,
+            "urls_crawled": [
+              "https://www.uniqlo.com/us/en/men",
+              "https://www.uniqlo.com/us/en/women",
+              "https://www.uniqlo.com/us/en/feature/sale/kids",
+              "https://www.uniqlo.com/us/en/baby/newborn/bodysuits",
+              "https://www.uniqlo.com/us/en/",
+              "https://www.uniqlo.com/us/en/kids/sport-utility-wear"
+            ],
+            "content_quality": 0.953,
+            "crawl_settings": {
+              "max_depth": 2,
+              "max_breadth": 15,
+              "limit": 25
+            }
+          },
+          "content_preview": "## Page: https://www.uniqlo.com/us/en/men\n\n# UNIQLO\n\n[women](/us/en/)men[kids](/us/en/kids)[baby](/us/en/baby)\n\n[women](/us/en/)[men](/us/en/men)[kids](/us/en/kids)[baby](/us/en/baby)\n\n# Download Our App\n\nUNIQLO App\n\nDownload our app for the best experience.\n\n[Open App](https://uniqlous.onelink.me/7JDY/digitalsitel1)\n\n[Premium Linen Deals\n\nAiry, breathable premium linen and linen blend styles ready for summer style.\n\n$39.90\n\n$49.90\n\nLimited-Time Offer until 5/28](https://www.uniqlo.com/us/en/men",
+          "structured_by": "llm"
+        }
+      },
+      "updated_at": "2026-05-28T20:40:15.079623+00:00"
+    },
+    "84040db3-ea6c-4d77-9cc2-c66bac29ac30": {
+      "id": "84040db3-ea6c-4d77-9cc2-c66bac29ac30",
+      "website_url": "https://www.uniqlo.com/",
+      "ad_plan": {
+        "brand_profile": {
+          "name": "UNIQLO",
+          "website": "https://www.uniqlo.com/",
+          "domain": "www.uniqlo.com",
+          "voice": "professional",
+          "value_props": [
+            "Airy, breathable premium linen and linen blend styles",
+            "Smooth, quick-drying AIRism technology",
+            "High-quality 100% cotton for soft comfort",
+            "Ultra-fine yarn for a smooth touch",
+            "Built-in support and coverage in select styles"
+          ],
+          "keywords": [
+            "AIRism",
+            "Linen Shirt",
+            "Crew Neck T-Shirt",
+            "Polo Shirt",
+            "Graphic T-Shirt",
+            "Sweatshirt",
+            "Shorts",
+            "Joggers",
+            "Bra Top",
+            "UT Collection",
+            "Premium Linen",
+            "Ultra Stretch"
+          ],
+          "summary": "UNIQLO offers men's, women's, and kids' clothing with a focus on comfort, quality fabrics, and technology like AIRism. The brand features frequent limited-time sales on items such as linen shirts, t-shirts, polos, shorts, and graphic tees."
+        },
+        "creative_guidelines": {
+          "preferred_tones": [
+            "urgency",
+            "empathy"
+          ],
+          "avoid_tones": [
+            "urgency"
+          ],
+          "notes": null
+        },
+        "guardrails": {
+          "blocked_terms": [],
+          "blocked_topics": []
+        },
+        "suggested_catalog": {
+          "products": [
+            {
+              "id": "airism-cotton-pique-polo-shirt-30b45d",
+              "name": "AIRism Cotton Pique Polo Shirt",
+              "category": "research",
+              "department": "men",
+              "keywords": [
+                "AIRism",
+                "Linen Shirt",
+                "Crew Neck T-Shirt",
+                "Polo Shirt",
+                "Graphic T-Shirt",
+                "Sweatshirt",
+                "Shorts",
+                "Joggers"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "airism-cotton-pique-polo-shirt-empathy",
+                  "tone": "empathy",
+                  "copy": "AIRism Cotton Pique Polo Shirt \u2014 discover how UNIQLO can help."
+                },
+                {
+                  "id": "airism-cotton-pique-polo-shirt-feature",
+                  "tone": "feature",
+                  "copy": "UNIQLO: AIRism Cotton Pique Polo Shirt"
+                }
+              ]
+            },
+            {
+              "id": "100-premium-linen-shirt-945d04",
+              "name": "100% Premium Linen Shirt",
+              "category": "research",
+              "department": "women",
+              "keywords": [
+                "AIRism",
+                "Linen Shirt",
+                "Crew Neck T-Shirt",
+                "Polo Shirt",
+                "Graphic T-Shirt",
+                "Sweatshirt",
+                "Shorts",
+                "Joggers"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "100-premium-linen-shirt-empathy",
+                  "tone": "empathy",
+                  "copy": "100% Premium Linen Shirt \u2014 discover how UNIQLO can help."
+                },
+                {
+                  "id": "100-premium-linen-shirt-feature",
+                  "tone": "feature",
+                  "copy": "UNIQLO: 100% Premium Linen Shirt"
+                }
+              ]
+            },
+            {
+              "id": "jason-polan-ut-graphic-t-shirt-5ec30c",
+              "name": "Jason Polan UT Graphic T-Shirt",
+              "category": "research",
+              "department": "kids",
+              "keywords": [
+                "AIRism",
+                "Linen Shirt",
+                "Crew Neck T-Shirt",
+                "Polo Shirt",
+                "Graphic T-Shirt",
+                "Sweatshirt",
+                "Shorts",
+                "Joggers"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "jason-polan-ut-graphic-t-shirt-empathy",
+                  "tone": "empathy",
+                  "copy": "Jason Polan UT Graphic T-Shirt \u2014 discover how UNIQLO can help."
+                },
+                {
+                  "id": "jason-polan-ut-graphic-t-shirt-feature",
+                  "tone": "feature",
+                  "copy": "UNIQLO: Jason Polan UT Graphic T-Shirt"
+                }
+              ]
+            },
+            {
+              "id": "crew-neck-t-shirt-514298",
+              "name": "Crew Neck T-Shirt",
+              "category": "research",
+              "department": "men",
+              "keywords": [
+                "AIRism",
+                "Linen Shirt",
+                "Crew Neck T-Shirt",
+                "Polo Shirt",
+                "Graphic T-Shirt",
+                "Sweatshirt",
+                "Shorts",
+                "Joggers"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "crew-neck-t-shirt-empathy",
+                  "tone": "empathy",
+                  "copy": "Crew Neck T-Shirt \u2014 discover how UNIQLO can help."
+                },
+                {
+                  "id": "crew-neck-t-shirt-feature",
+                  "tone": "feature",
+                  "copy": "UNIQLO: Crew Neck T-Shirt"
+                }
+              ]
+            },
+            {
+              "id": "linen-blend-easy-pants-f1ecdb",
+              "name": "Linen Blend Easy Pants",
+              "category": "research",
+              "department": "women",
+              "keywords": [
+                "AIRism",
+                "Linen Shirt",
+                "Crew Neck T-Shirt",
+                "Polo Shirt",
+                "Graphic T-Shirt",
+                "Sweatshirt",
+                "Shorts",
+                "Joggers"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "linen-blend-easy-pants-empathy",
+                  "tone": "empathy",
+                  "copy": "Linen Blend Easy Pants \u2014 discover how UNIQLO can help."
+                },
+                {
+                  "id": "linen-blend-easy-pants-feature",
+                  "tone": "feature",
+                  "copy": "UNIQLO: Linen Blend Easy Pants"
+                }
+              ]
+            },
+            {
+              "id": "toy-story-ut-graphic-t-shirt-3623e5",
+              "name": "TOY STORY UT Graphic T-Shirt",
+              "category": "research",
+              "department": "kids",
+              "keywords": [
+                "AIRism",
+                "Linen Shirt",
+                "Crew Neck T-Shirt",
+                "Polo Shirt",
+                "Graphic T-Shirt",
+                "Sweatshirt",
+                "Shorts",
+                "Joggers"
+              ],
+              "conversion_value": 50.0,
+              "base_bid": 1.25,
+              "creatives": [
+                {
+                  "id": "toy-story-ut-graphic-t-shirt-empathy",
+                  "tone": "empathy",
+                  "copy": "TOY STORY UT Graphic T-Shirt \u2014 discover how UNIQLO can help."
+                },
+                {
+                  "id": "toy-story-ut-graphic-t-shirt-feature",
+                  "tone": "feature",
+                  "copy": "UNIQLO: TOY STORY UT Graphic T-Shirt"
+                }
+              ]
+            }
+          ]
+        },
+        "campaign_defaults": {
+          "daily_budget": 500.0,
+          "cvr_floor": 0.02,
+          "bid_strategy": "conversion_optimized"
+        },
+        "source": {
+          "tavily_extract": {
+            "source": "tavily_crawl",
+            "method": "crawl",
+            "storefront_url": "https://www.uniqlo.com/us/en/",
+            "failed": [],
+            "chars": 22000,
+            "pages_crawled": 6,
+            "urls_crawled": [
+              "https://www.uniqlo.com/us/en/men",
+              "https://www.uniqlo.com/us/en/women",
+              "https://www.uniqlo.com/us/en/feature/sale/kids",
+              "https://www.uniqlo.com/us/en/baby/newborn/bodysuits",
+              "https://www.uniqlo.com/us/en/",
+              "https://www.uniqlo.com/us/en/kids/sport-utility-wear"
+            ],
+            "content_quality": 0.953,
+            "crawl_settings": {
+              "max_depth": 2,
+              "max_breadth": 15,
+              "limit": 25
+            }
+          },
+          "content_preview": "## Page: https://www.uniqlo.com/us/en/men\n\n# UNIQLO\n\n[women](/us/en/)men[kids](/us/en/kids)[baby](/us/en/baby)\n\n[women](/us/en/)[men](/us/en/men)[kids](/us/en/kids)[baby](/us/en/baby)\n\n# Download Our App\n\nUNIQLO App\n\nDownload our app for the best experience.\n\n[Open App](https://uniqlous.onelink.me/7JDY/digitalsitel1)\n\n[Premium Linen Deals\n\nAiry, breathable premium linen and linen blend styles ready for summer style.\n\n$39.90\n\n$49.90\n\nLimited-Time Offer until 5/28](https://www.uniqlo.com/us/en/men",
+          "structured_by": "llm"
+        }
+      },
+      "updated_at": "2026-05-28T20:42:01.647883+00:00"
     }
-  }
+  },
+  "active_brand_id": "84040db3-ea6c-4d77-9cc2-c66bac29ac30"
 }

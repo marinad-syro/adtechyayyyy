@@ -85,6 +85,11 @@ _CATEGORY_LINK = re.compile(
     re.I,
 )
 _ABOUT_URL_HINT = re.compile(r"/about|/company|/our-story", re.I)
+_CATEGORY_BUCKET = re.compile(
+    r"/(?:feature/sale/)?(men|women|kids|baby|home|accessories)(?:/|$)",
+    re.I,
+)
+_BUCKET_PRIORITY = ("men", "women", "kids", "baby", "products", "home", "accessories", "general")
 
 ABOUT_PATHS = (
     "",
@@ -304,6 +309,20 @@ def _page_sort_key(row: dict) -> tuple[int, int]:
     return (priority, -content_len)
 
 
+def url_category_bucket(url: str) -> str:
+    """Rough department bucket from URL path (men/women/kids/baby/…)."""
+    if _PRODUCT_URL_HINT.search(url):
+        path = url.lower()
+        for part in ("men", "women", "kids", "baby"):
+            if f"/{part}/" in path or path.rstrip("/").endswith(f"/{part}"):
+                return part
+        return "products"
+    match = _CATEGORY_BUCKET.search(url)
+    if match:
+        return match.group(1).lower()
+    return "general"
+
+
 def crawl_urls(
     url: str,
     *,
@@ -368,30 +387,91 @@ def crawl_urls(
 
 
 def _merge_crawl_sections(results: list[dict], max_chars: int = 22000) -> tuple[str, list[str]]:
-    """Combine crawled pages; product/shop URLs first."""
-    ordered = sorted(results, key=_page_sort_key)
+    """Combine crawled pages; round-robin across departments so one category doesn't dominate."""
+    by_bucket: dict[str, list[dict]] = {}
+    for row in results:
+        raw = (row.get("raw_content") or "").strip()
+        if not raw:
+            continue
+        bucket = url_category_bucket(row.get("url") or "")
+        by_bucket.setdefault(bucket, []).append(row)
+
+    for rows in by_bucket.values():
+        rows.sort(key=_page_sort_key)
+
+    ordered_buckets = [b for b in _BUCKET_PRIORITY if b in by_bucket]
+    ordered_buckets.extend(b for b in by_bucket if b not in ordered_buckets)
+
     sections: list[str] = []
     urls: list[str] = []
     total = 0
-    for row in ordered:
-        raw = (row.get("raw_content") or "").strip()
-        page_url = (row.get("url") or "").strip()
-        if not raw:
-            continue
-        header = f"## Page: {page_url}\n\n" if page_url else ""
-        block = header + raw
-        if total + len(block) > max_chars:
-            remaining = max_chars - total
-            if remaining < 400:
+    indices = {b: 0 for b in by_bucket}
+    progress = True
+
+    while progress and total < max_chars:
+        progress = False
+        for bucket in ordered_buckets:
+            rows = by_bucket.get(bucket) or []
+            idx = indices[bucket]
+            if idx >= len(rows):
+                continue
+            row = rows[idx]
+            indices[bucket] = idx + 1
+            progress = True
+
+            raw = (row.get("raw_content") or "").strip()
+            page_url = (row.get("url") or "").strip()
+            header = f"## Page: {page_url}\n\n" if page_url else ""
+            block = header + raw
+            if total + len(block) > max_chars:
+                remaining = max_chars - total
+                if remaining < 400:
+                    break
+                block = block[:remaining] + "\n\n[truncated]"
+            sections.append(block)
+            if page_url:
+                urls.append(page_url)
+            total += len(block)
+            if total >= max_chars:
                 break
-            block = block[:remaining] + "\n\n[truncated]"
-        sections.append(block)
-        if page_url:
-            urls.append(page_url)
-        total += len(block)
-        if total >= max_chars:
-            break
+
     return "\n\n---\n\n".join(sections), urls
+
+
+def _supplement_crawl_with_categories(
+    website_url: str, results: list[dict], *, max_extra: int = 6
+) -> list[dict]:
+    """Extract men/women/kids (and related) pages missing from a shallow crawl."""
+    seeds = discover_category_urls(website_url, max_urls=10)
+    seen = {(r.get("url") or "").rstrip("/").lower() for r in results}
+    priority: list[str] = []
+    other: list[str] = []
+
+    for url in seeds:
+        key = url.rstrip("/").lower()
+        if key in seen:
+            continue
+        if re.search(r"/(men|women|kids|baby|tops|bottoms|t-shirts)(/|$)", url, re.I):
+            priority.append(url)
+        else:
+            other.append(url)
+
+    to_fetch = (priority + other)[:max_extra]
+    if not to_fetch:
+        return results
+
+    extra = extract_urls(
+        to_fetch,
+        query="products collections prices features new arrivals",
+        extract_depth="advanced",
+    )
+    merged = list(results)
+    for row in extra.get("results") or []:
+        key = (row.get("url") or "").rstrip("/").lower()
+        if key and key not in seen:
+            seen.add(key)
+            merged.append(row)
+    return merged
 
 
 def crawl_brand_website(website_url: str) -> dict:
@@ -410,6 +490,7 @@ def crawl_brand_website(website_url: str) -> dict:
     )
 
     results = crawl.get("results") or []
+    results = _supplement_crawl_with_categories(website_url, results)
     content, urls_crawled = _merge_crawl_sections(results)
     quality = _content_quality(content)
 

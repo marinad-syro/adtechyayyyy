@@ -7,7 +7,15 @@ import uuid
 from urllib.parse import urlparse
 
 from agent.brand_store import save_brand
-from agent.tavily_client import extract_brand_website, normalize_brand_url
+from agent.tavily_client import extract_brand_website, normalize_brand_url, url_category_bucket
+
+MAX_CATALOG_PRODUCTS = 8
+MAX_PRODUCTS_PER_DEPARTMENT = 2
+
+_CATEGORY_PAGE_TITLE = re.compile(
+    r"^(baby|kids?|kid'?s|men'?s?|women'?s?|boys?|girls?|children)\b",
+    re.I,
+)
 
 _PRODUCT_PAGE = re.compile(
     r"/products?/|/shop/|/collections?/|/catalog/|/store/|/p/|/item/",
@@ -37,6 +45,17 @@ _PRICE = re.compile(r"[$£€]\s?\d|^\d+[\.,]\d{2}\s*$")
 _HEADING = re.compile(r"^(#{1,3})\s+(.+)$")
 
 
+def _is_category_page_title(text: str) -> bool:
+    return bool(_CATEGORY_PAGE_TITLE.match(text.strip()))
+
+
+def _sanitize_brand_name(candidate: str, canonical_url: str, content: str) -> str:
+    name = (candidate or "").strip()[:80]
+    if not name or _is_category_page_title(name) or _NAV_HEADING.match(name):
+        return _guess_brand_name(canonical_url, content)
+    return name
+
+
 def _guess_brand_name(url: str, content: str) -> str:
     domain = urlparse(url).netloc.replace("www.", "")
     base = domain.split(".")[0].replace("-", " ").title()
@@ -44,7 +63,11 @@ def _guess_brand_name(url: str, content: str) -> str:
         line = line.strip()
         if line.startswith("# "):
             title = line[2:].strip()[:80]
-            if not _NAV_HEADING.match(title) and len(title) > 2:
+            if (
+                not _NAV_HEADING.match(title)
+                and not _is_category_page_title(title)
+                and len(title) > 2
+            ):
                 return title
         if line.lower().startswith("title:"):
             return line.split(":", 1)[1].strip()[:80]
@@ -125,12 +148,79 @@ def _looks_like_product_heading(text: str, following_lines: list[str]) -> bool:
     product_words = (
         "pro", "mini", "max", "edition", "series", "shoe", "shoes", "chair",
         "runner", "sneaker", "earbuds", "headphone", "watch", "phone", "pod",
+        "shirt", "tee", "t-shirt", "pants", "jeans", "jacket", "coat", "dress",
+        "skirt", "shorts", "hoodie", "sweater", "blouse", "legging", "bodysuit",
+        "parka", "ultra", "light", "warm", "cotton", "linen", "fleece", "airism",
     )
     return any(w in lower for w in product_words) and len(text) > 18
 
 
-def _extract_product_candidates(content: str) -> list[str]:
-    """Pull product names from headings; prefer crawled product/shop pages."""
+def _infer_department(text: str, page_url: str = "") -> str:
+    bucket = url_category_bucket(page_url) if page_url else "general"
+    if bucket not in ("general", "products"):
+        return bucket
+    lower = text.lower()
+    for dept in ("men", "women", "kids", "baby"):
+        if dept in lower:
+            return dept
+    return bucket if bucket != "products" else "general"
+
+
+def _pick_diverse_products(
+    candidates: list[dict],
+    *,
+    max_total: int = MAX_CATALOG_PRODUCTS,
+    max_per: int = MAX_PRODUCTS_PER_DEPARTMENT,
+) -> list[dict]:
+    """Round-robin across departments so one aisle doesn't fill the catalog."""
+    if not candidates:
+        return []
+
+    by_dept: dict[str, list[dict]] = {}
+    seen_names: set[str] = set()
+    for item in candidates:
+        name = (item.get("name") or "").strip()
+        if not name:
+            continue
+        key = name.lower()
+        if key in seen_names:
+            continue
+        seen_names.add(key)
+        dept = item.get("department") or "general"
+        by_dept.setdefault(dept, []).append({**item, "name": name, "department": dept})
+
+    order = [
+        d for d in ("men", "women", "kids", "baby", "products", "home", "accessories", "general")
+        if d in by_dept
+    ]
+    order.extend(d for d in by_dept if d not in order)
+
+    picked: list[dict] = []
+    counts = {d: 0 for d in by_dept}
+    indices = {d: 0 for d in by_dept}
+    progress = True
+
+    while progress and len(picked) < max_total:
+        progress = False
+        for dept in order:
+            if counts[dept] >= max_per:
+                continue
+            idx = indices[dept]
+            rows = by_dept.get(dept) or []
+            if idx >= len(rows):
+                continue
+            picked.append(rows[idx])
+            indices[dept] = idx + 1
+            counts[dept] += 1
+            progress = True
+            if len(picked) >= max_total:
+                break
+
+    return picked
+
+
+def _extract_product_candidates(content: str) -> list[dict]:
+    """Pull product names from headings; balance across crawled departments."""
     sections: list[tuple[str, str]] = []
     current_url = ""
     current_lines: list[str] = []
@@ -156,27 +246,31 @@ def _extract_product_candidates(content: str) -> list[str]:
         )
     )
 
-    products: list[str] = []
+    candidates: list[dict] = []
     seen: set[str] = set()
-    for _url, block in sections:
+    for page_url, block in sections:
+        dept = _infer_department("", page_url)
         lines = block.splitlines()
         for i, line in enumerate(lines):
             m = _HEADING.match(line.strip())
             if not m:
                 continue
             text = _clean_heading(m.group(2))
-            if not _is_usable_heading(text):
+            if not _is_usable_heading(text) or _is_category_page_title(text):
                 continue
             following = [ln.strip() for ln in lines[i + 1 : i + 4] if ln.strip()]
             if not _looks_like_product_heading(text, following):
                 continue
             key = text.lower()
-            if key not in seen:
-                seen.add(key)
-                products.append(text)
-        if len(products) >= 6:
-            break
-    return products[:6]
+            if key in seen:
+                continue
+            seen.add(key)
+            candidates.append({
+                "name": text,
+                "department": _infer_department(text, page_url),
+            })
+
+    return _pick_diverse_products(candidates)
 
 
 def _extract_keywords(content: str, limit: int = 15) -> list[str]:
@@ -201,20 +295,31 @@ def _infer_tones(content: str) -> tuple[list[str], list[str]]:
 
 
 def _draft_products(
-    content: str, brand_name: str, keywords: list[str], product_names: list[str] | None = None
+    content: str,
+    brand_name: str,
+    keywords: list[str],
+    product_entries: list[dict] | None = None,
 ) -> list[dict]:
-    """Product drafts from headings or LLM names."""
-    names = product_names or _extract_product_candidates(content)
-    if not names:
-        names = _extract_value_props(content)[:4]
+    """Product drafts from headings or LLM names, capped and diversified by department."""
+    entries = product_entries
+    if not entries:
+        entries = _extract_product_candidates(content)
+    if not entries:
+        fallback_names = _extract_value_props(content)[:4]
+        entries = [{"name": n, "department": "general"} for n in fallback_names]
+
+    entries = _pick_diverse_products(entries)
 
     products = []
-    for i, name in enumerate(names[:5]):
+    for i, entry in enumerate(entries[:MAX_CATALOG_PRODUCTS]):
+        name = entry["name"]
+        dept = entry.get("department") or "general"
         slug = re.sub(r"[^a-z0-9]+", "-", name.lower())[:40].strip("-") or f"product-{i}"
         products.append({
             "id": f"{slug}-{uuid.uuid4().hex[:6]}",
             "name": name[:80],
             "category": "research",
+            "department": dept,
             "keywords": keywords[:8],
             "conversion_value": 50.0,
             "base_bid": 1.25,
@@ -277,9 +382,11 @@ def _structure_with_llm(content: str, brand_name: str, website_url: str) -> dict
         "From the markdown below (may include multiple crawled product/shop pages), "
         "extract ONLY facts present in the text. "
         "Return a single JSON object with keys:\n"
-        "name (string), summary (1-2 sentences), value_props (string array, 3-6 items), "
+        "name (string — the brand/company name, NOT a category page like 'Baby Bodysuits'), "
+        "summary (1-2 sentences), value_props (string array, 3-6 items), "
         "keywords (string array, 8-12 product/brand terms), voice (warm|bold|professional), "
-        "products (array of {name, description} max 5 — real product names from shop pages).\n"
+        "products (array of {name, description, department} max 8 — real product names; "
+        "include a mix across men, women, kids, and other departments when the site offers them).\n"
         "Ignore nav menus, image labels, duplicate headings, and cookie banners.\n\n"
         f"MARKDOWN:\n{content[:12000]}"
     )
@@ -322,8 +429,9 @@ def create_ad_plan_from_website(
     brand_name = _guess_brand_name(canonical_url, content)
     llm = _structure_with_llm(content, brand_name, canonical_url)
 
+    product_entries: list[dict] | None = None
     if llm:
-        brand_name = (llm.get("name") or brand_name)[:80]
+        brand_name = _sanitize_brand_name(llm.get("name") or brand_name, canonical_url, content)
         value_props = llm.get("value_props") or []
         if isinstance(value_props, str):
             value_props = [value_props]
@@ -331,19 +439,33 @@ def create_ad_plan_from_website(
         summary = (llm.get("summary") or "")[:500]
         voice = llm.get("voice") if llm.get("voice") in ("warm", "bold", "professional") else "professional"
         llm_products = llm.get("products") or []
-        product_names = [
-            (p.get("name") or "").strip()
-            for p in llm_products
-            if isinstance(p, dict) and (p.get("name") or "").strip()
-        ]
+        product_entries = []
+        for p in llm_products:
+            if not isinstance(p, dict):
+                continue
+            name = (p.get("name") or "").strip()
+            if not name:
+                continue
+            dept = (p.get("department") or "").strip().lower() or _infer_department(name)
+            product_entries.append({"name": name, "department": dept})
         structured_by = "llm"
     else:
         value_props = _extract_value_props(content)
         keywords = _extract_keywords(content)
         summary = ""
         voice = "professional"
-        product_names = None
         structured_by = "heuristic"
+
+    if not product_entries:
+        product_entries = _extract_product_candidates(content)
+    else:
+        heuristic = _extract_product_candidates(content)
+        seen = {e["name"].lower() for e in product_entries}
+        for h in heuristic:
+            if h["name"].lower() not in seen:
+                product_entries.append(h)
+                seen.add(h["name"].lower())
+        product_entries = _pick_diverse_products(product_entries)
 
     if not value_props:
         value_props = _extract_value_props(content)
@@ -390,7 +512,7 @@ def create_ad_plan_from_website(
             "blocked_topics": [],
         },
         "suggested_catalog": {
-            "products": _draft_products(content, brand_name, keywords, product_names),
+            "products": _draft_products(content, brand_name, keywords, product_entries),
         },
         "campaign_defaults": {
             "daily_budget": daily_budget or 500.0,
