@@ -25,16 +25,20 @@ if str(_ROOT) not in sys.path:
 
 
 def _resolve_frontend_dir() -> Path | None:
-    """Vercel compiles backend/app.py → /var/task/index.py; frontend must sit alongside it."""
+    """Locate bundled static files (build copies frontend/ → backend/_frontend and _frontend/)."""
     here = Path(__file__).resolve().parent
     for candidate in (
-        here / "_frontend",  # buildCommand: cp -r frontend backend/_frontend
-        here / "frontend",
+        here / "_frontend",
+        here.parent / "_frontend",
+        here.parent / "backend" / "_frontend",
+        here.parent / "public",
         Path.cwd() / "_frontend",
-        Path.cwd() / "frontend",
+        Path.cwd() / "backend" / "_frontend",
+        Path.cwd() / "public",
+        here / "frontend",
         here.parent / "frontend",
     ):
-        if candidate.is_dir():
+        if candidate.is_dir() and (candidate / "app.html").is_file():
             return candidate
     return None
 
@@ -132,6 +136,10 @@ def health():
         "mode": "keyword" if os.environ.get("VERCEL") else DEMO_MODE,
         "tribe_available": True,
         "embeddings": emb,
+        "frontend": {
+            "ready": FRONTEND_DIR is not None,
+            "path": str(FRONTEND_DIR) if FRONTEND_DIR else None,
+        },
     }
 
 
