@@ -11,7 +11,9 @@ This branch drops **TribeV2** and uses **keyword matching on Vercel** (no PyTorc
 | **Build Command** | *(from `pyproject.toml`: `python scripts/vercel_build.py` copies `frontend/` → `backend/_frontend`, `_frontend/`, and `public/`)* |
 | **Output Directory** | *(empty)* |
 
-The FastAPI entrypoint is `backend/app.py` (Services). At deploy time Vercel compiles it to `/var/task/index.py` and bundles `backend/**` including the copied `_frontend/` static files.
+The FastAPI entrypoint is **`app.py` at the repo root** (not `backend/app.py`). Vercel’s runtime does `from app import app`; the root shim loads `backend/app.py` and bundles `backend/**` plus the build-copied `_frontend/` / `public/` static files.
+
+**Important:** If `/api/health` works but `/` returns 500, check the `frontend.ready` field in the health JSON. If it is `false`, the build step did not copy static files — confirm the latest deployment (not an old preview URL) and that build logs show `Copied frontend ->`.
 
 ## Environment variables
 

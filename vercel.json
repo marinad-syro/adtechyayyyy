@@ -1,12 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "python scripts/vercel_build.py",
   "experimentalServices": {
     "app": {
-      "entrypoint": "backend/app.py",
+      "entrypoint": "app.py",
       "routePrefix": "/",
       "framework": "fastapi",
       "maxDuration": 60,
-      "includeFiles": ["backend/**", "_frontend/**", "public/**"],
+      "includeFiles": ["backend/**", "_frontend/**", "public/**", "app.py"],
       "excludeFiles": [
         "backend/model_cache/**",
         "backend/**/*.db",

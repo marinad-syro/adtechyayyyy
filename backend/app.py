@@ -129,6 +129,7 @@ def health():
     from agent.embedding_ranker import embedding_status
 
     emb = embedding_status()
+    here = Path(__file__).resolve().parent
     return {
         "ready": True,
         "loading": emb.get("loading", False),
@@ -139,6 +140,20 @@ def health():
         "frontend": {
             "ready": FRONTEND_DIR is not None,
             "path": str(FRONTEND_DIR) if FRONTEND_DIR else None,
+        },
+        "deploy": {
+            "vercel": bool(os.environ.get("VERCEL")),
+            "cwd": str(Path.cwd()),
+            "app_file": str(here / "app.py"),
+            "has_app_html": any(
+                (p / "app.html").is_file()
+                for p in (
+                    here / "_frontend",
+                    here.parent / "_frontend",
+                    here.parent / "public",
+                    Path.cwd() / "public",
+                )
+            ),
         },
     }
 
