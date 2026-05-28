@@ -185,6 +185,20 @@ class ChatRequest(BaseModel):
     include_decision: bool = False
 
 
+class PlacementPreviewRequest(BaseModel):
+    user_text: str
+    brand_id: str | None = None
+    session_id: str | None = None
+    skip_hitl: bool = True
+    include_llm: bool = True
+    conversation_history: list[dict] = []
+
+
+class AdvertiserAgentRequest(BaseModel):
+    message: str
+    context: dict = Field(default_factory=dict)
+
+
 def _run_prediction(text_path: str) -> dict:
     from brain_regions import get_region_activations
 
@@ -242,6 +256,102 @@ def _llm_reply(message: str, conversation_history: list[dict]) -> str:
     return ai_response.choices[0].message.content
 
 
+def _advertiser_advisor_reply(message: str, context: dict) -> str:
+    key = os.environ.get("XAI_API_KEY")
+    import json
+
+    context_blob = json.dumps(context, default=str)[:12000]
+    if not key:
+        return (
+            "Set XAI_API_KEY to enable the advertiser advisor. "
+            f"Your question was: \"{message[:100]}\". "
+            "Use the Conversion and Brain tabs for decision details."
+        )
+
+    from openai import OpenAI
+
+    model = os.environ.get("XAI_MODEL", "grok-3-fast")
+    client = OpenAI(base_url="https://api.x.ai/v1", api_key=key)
+    ai_response = client.chat.completions.create(
+        model=model,
+        max_tokens=500,
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are a buy-side advertising advisor for an AI chat placement platform. "
+                    "Explain decisions using ONLY the JSON context provided—never invent metrics. "
+                    "Focus on conversion (p_cvr, EV), emotional fit (Tribe), and when to no-bid. "
+                    "Be concise (3-5 sentences)."
+                ),
+            },
+            {
+                "role": "user",
+                "content": f"Context JSON:\n{context_blob}\n\nAdvertiser question: {message}",
+            },
+        ],
+    )
+    return ai_response.choices[0].message.content
+
+
+@app.post("/api/placement/preview")
+async def api_placement_preview(req: PlacementPreviewRequest):
+    """Unified preview: auction + conversion decide + optional consumer LLM reply."""
+    from agent.auction import run_auction
+    from agent.orchestrator import decide
+    from agent.outcomes import get_dashboard_stats
+
+    user_text = req.user_text.strip()
+    if len(user_text) < 3:
+        raise HTTPException(422, "user_text too short")
+
+    loop = asyncio.get_event_loop()
+
+    def _run():
+        auction = run_auction(user_text)
+        tribe_fn = _tribe_fn if _model_ready else None
+        decision = decide(
+            user_text,
+            session_id=req.session_id,
+            tribe_fn=tribe_fn,
+            skip_hitl=req.skip_hitl,
+            brand_id=req.brand_id,
+        )
+        decision["tribe_available"] = _model_ready
+        llm_response = None
+        if req.include_llm:
+            try:
+                llm_response = _llm_reply(user_text, req.conversation_history)
+            except Exception as exc:
+                llm_response = f"LLM unavailable ({exc}). Placement decision still computed."
+        dashboard_snapshot = get_dashboard_stats()
+        return auction, decision, llm_response, dashboard_snapshot
+
+    auction, decision, llm_response, dashboard_snapshot = await loop.run_in_executor(
+        None, _run
+    )
+
+    return {
+        "llm": {"response": llm_response},
+        "auction": auction,
+        "decision": decision,
+        "dashboard_snapshot": dashboard_snapshot,
+    }
+
+
+@app.post("/api/agent/advertiser")
+async def api_agent_advertiser(req: AdvertiserAgentRequest):
+    loop = asyncio.get_event_loop()
+    try:
+        response = await loop.run_in_executor(
+            None,
+            lambda: _advertiser_advisor_reply(req.message.strip(), req.context),
+        )
+    except Exception as exc:
+        raise HTTPException(500, str(exc)) from exc
+    return {"response": response}
+
+
 @app.post("/api/chat")
 async def api_chat(payload: ChatRequest):
     """ContextBid chat: semantic auction + optional LLM reply (+ conversion decide)."""
@@ -289,9 +399,30 @@ def api_stats():
     return get_auction_stats()
 
 
+@app.get("/api/policies")
+def api_policies():
+    from agent.catalog import load_policies
+    return load_policies()
+
+
+@app.get("/")
+async def root_page():
+    return FileResponse(FRONTEND_DIR / "app.html")
+
+
+@app.get("/legacy/contextbid")
+async def legacy_contextbid():
+    return FileResponse(FRONTEND_DIR / "legacy" / "contextbid.html")
+
+
+@app.get("/legacy/brain")
+async def legacy_brain():
+    return FileResponse(FRONTEND_DIR / "legacy" / "brain.html")
+
+
 @app.get("/brain")
 async def brain_page():
-    return FileResponse(FRONTEND_DIR / "brain.html")
+    return FileResponse(FRONTEND_DIR / "legacy" / "brain.html")
 
 
 @app.post("/api/predict")
@@ -471,5 +602,5 @@ def api_deactivate_brand():
     return {"ok": True, "active_brand_id": None}
 
 
-# ContextBid UI at / ; TribeV2 brain viz at /brain
+# Unified advertiser UI at / (app.html); static assets via mount below
 app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")

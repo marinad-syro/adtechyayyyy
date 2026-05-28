@@ -75,6 +75,74 @@
         }
       },
       "updated_at": "2026-05-28T18:20:28.755633+00:00"
+    },
+    "a5a2c490-9f89-4c82-9fb9-9244b6d6f1be": {
+      "id": "a5a2c490-9f89-4c82-9fb9-9244b6d6f1be",
+      "website_url": "https://www.apple.com/uk/store?afid=p240%7Cgo~cmp-201691933~adg-15144742573~ad-795120300906_kwd-10778630~dev-c~ext-~prd-~mca-~nt-search&cid=aos-uk-kwgo-txt-brand-brand--",
+      "ad_plan": {
+        "brand_profile": {
+          "name": "Apple",
+          "website": "https://www.apple.com/uk/store?afid=p240%7Cgo~cmp-201691933~adg-15144742573~ad-795120300906_kwd-10778630~dev-c~ext-~prd-~mca-~nt-search&cid=aos-uk-kwgo-txt-brand-brand--",
+          "domain": "www.apple.com",
+          "voice": "professional",
+          "value_props": [],
+          "keywords": [
+            "advertiser",
+            "notes",
+            "neutral"
+          ],
+          "summary": "  Advertiser notes: neutral"
+        },
+        "creative_guidelines": {
+          "preferred_tones": [
+            "empathy",
+            "feature"
+          ],
+          "avoid_tones": [],
+          "notes": "neutral"
+        },
+        "guardrails": {
+          "blocked_terms": [],
+          "blocked_topics": []
+        },
+        "suggested_catalog": {
+          "products": [
+            {
+              "id": "apple- flagship",
+              "name": "Apple Flagship",
+              "category": "research",
+              "keywords": [
+                "advertiser",
+                "notes",
+                "neutral"
+              ],
+              "conversion_value": 75.0,
+              "base_bid": 1.5,
+              "creatives": [
+                {
+                  "id": "flagship-empathy",
+                  "tone": "empathy",
+                  "copy": "See why customers choose Apple."
+                }
+              ]
+            }
+          ]
+        },
+        "campaign_defaults": {
+          "daily_budget": 600.0,
+          "cvr_floor": 0.02,
+          "bid_strategy": "conversion_optimized"
+        },
+        "source": {
+          "tavily_extract": {
+            "source": "no_api_key",
+            "failed": [],
+            "chars": 0
+          },
+          "content_preview": "\n\nAdvertiser notes:\nneutral"
+        }
+      },
+      "updated_at": "2026-05-28T18:38:00.744583+00:00"
     }
   }
 }

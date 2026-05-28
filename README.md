@@ -24,13 +24,18 @@ See [docs/INTERACTION_FLOW.md](docs/INTERACTION_FLOW.md) for flowcharts of the f
 # TAVILY_API_KEY=...    # live market search
 
 ./start.sh
-# API: http://localhost:8000
+# Unified advertiser UI: http://localhost:8000
+# Legacy ContextBid: http://localhost:8000/legacy/contextbid
+# Legacy BrainText viz: http://localhost:8000/legacy/brain
 ```
 
 ## API
 
 | Method | Path | Body | Description |
 |--------|------|------|-------------|
+| POST | `/api/placement/preview` | `{ "user_text", "brand_id?", "include_llm?" }` | Unified preview: auction + decide + Grok |
+| POST | `/api/agent/advertiser` | `{ "message", "context" }` | Grok advisor (explains dashboard data) |
+| POST | `/api/chat` | `{ "message", "conversation_history?" }` | Legacy ContextBid chat + auction |
 | POST | `/api/brand/onboard` | `{ "website_url", "advertiser_notes?", "activate?" }` | Scrape site → ad plan |
 | GET | `/api/brand` | — | List onboarded brands |
 | POST | `/api/brand/{id}/activate` | — | Use brand catalog for bidding |

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ContextBid Agent — Advertiser Cockpit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <span class="logo">Context<em>Bid</em> Agent</span>
+      <span class="logo-sub">conversion-optimized buy-side</span>
+    </div>
+    <select id="brandSelect" style="width:160px"></select>
+    <span class="chip" id="headerSpend">Spend —</span>
+    <span class="chip" id="headerCvr">CVR —</span>
+    <span class="chip" id="tribeStatus">Tribe: …</span>
+    <span class="chip" id="embedStatus">Embeddings: …</span>
+    <div class="header-spacer"></div>
+    <button class="btn btn-sm" id="tourBtn">Demo tour</button>
+    <button class="btn btn-sm" id="refreshBtn">Refresh</button>
+    <a class="link-btn" href="/legacy/contextbid">Legacy auction UI</a>
+    <a class="link-btn" href="/legacy/brain" style="margin-left:8px">Legacy brain viz</a>
+  </header>
+
+  <div class="main-grid">
+    <!-- Left: Campaign dashboard -->
+    <div class="col">
+      <div class="panel-label">Campaign dashboard</div>
+      <div class="panel-scroll">
+        <div class="card">
+          <div class="card-title">Brand onboard</div>
+          <div class="form-row">
+            <label>Website URL</label>
+            <input id="onboardUrl" type="url" placeholder="https://yourbrand.com">
+          </div>
+          <div class="form-row">
+            <label>Notes (optional)</label>
+            <textarea id="onboardNotes" rows="2" placeholder="Voice, guardrails, focus…"></textarea>
+          </div>
+          <div class="form-row">
+            <label>Daily budget (optional)</label>
+            <input id="onboardBudget" type="number" placeholder="500">
+          </div>
+          <button class="btn btn-primary" id="onboardBtn" style="width:100%;margin-top:4px">Build ad plan</button>
+          <p id="onboardResult" style="font-size:10px;color:var(--text2);margin-top:6px;font-family:var(--mono)"></p>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Performance</div>
+          <div id="performancePanel"><div class="empty-state">Loading…</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Active catalog</div>
+          <div id="catalogPanel"><div class="empty-state">Loading…</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Policies</div>
+          <div id="policiesPanel"><div class="empty-state">Loading…</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">HITL escalations</div>
+          <div id="escalationsPanel"><div class="empty-state">Loading…</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Prove lift</div>
+          <p style="font-size:10px;color:var(--text2);margin-bottom:8px">Compare optimized agent vs intent-only baseline across 50 simulated sessions.</p>
+          <button class="btn btn-primary" id="simBtn" style="width:100%">Run 50-session simulation</button>
+          <div id="simResults"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center: Consumer chat simulator -->
+    <div class="col">
+      <div class="panel-label">Preview — user in an AI chat</div>
+      <div class="chat-messages" id="consumerMessages">
+        <div class="msg msg-system">Type a user prompt to preview Grok reply + optimized ad placement.</div>
+      </div>
+      <div class="placement-meta" id="placementMeta"></div>
+      <div class="outcome-row">
+        <button class="btn btn-sm" id="outcomeClick">Simulate click</button>
+        <button class="btn btn-sm btn-primary" id="outcomeConvert">Simulate conversion</button>
+        <button class="btn btn-sm" id="outcomeNoClick">No click</button>
+      </div>
+      <div class="chat-input-row">
+        <textarea id="consumerInput" rows="2" placeholder="e.g. My lower back kills me after desk work…"></textarea>
+        <button class="btn btn-primary" id="consumerSend">Send</button>
+      </div>
+    </div>
+
+    <!-- Right: Decision intelligence -->
+    <div class="col">
+      <div class="tab-bar">
+        <div class="tab active" data-tab="decide">Conversion</div>
+        <div class="tab" data-tab="auction">Auction</div>
+        <div class="tab" data-tab="brain">Brain fit</div>
+      </div>
+      <div class="tab-panel active" id="tab-decide">
+        <div id="decidePanel"><div class="empty-state">Send a consumer message to run the agent.</div></div>
+      </div>
+      <div class="tab-panel" id="tab-auction">
+        <div id="auctionPanel"><div class="empty-state">Auction results appear after each preview.</div></div>
+      </div>
+      <div class="tab-panel" id="tab-brain">
+        <div id="brainPanel"><div class="empty-state">TribeV2 emotional fit for user vs winning ad.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent assistant drawer -->
+  <div class="agent-drawer collapsed" id="agentDrawer">
+    <div class="drawer-header" id="drawerToggle">
+      <span>▲</span>
+      <span>Advertiser advisor (Grok) — click to expand</span>
+    </div>
+    <div class="drawer-body">
+      <div class="agent-messages" id="agentMessages">
+        <div class="agent-msg agent-msg-bot">Ask me to explain bids, Tribe fit, or simulation results. I only use data from your dashboard.</div>
+      </div>
+      <div class="agent-input-col">
+        <div class="chip-row" id="agentChips"></div>
+        <textarea id="agentInput" rows="2" placeholder="Why did we serve this ad?"></textarea>
+        <button class="btn btn-primary btn-sm" id="agentSend">Ask advisor</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>
